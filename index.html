@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#111711" />
+  <meta name="theme-color" content="#0d1711" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="HUNT READY 30" />
+  <meta name="description" content="Faith-rooted hunting fitness, strength progression, nutrition, archery, and field readiness." />
   <title>HUNT READY 30</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -15,19 +16,29 @@
 <body>
   <div id="app">
     <header class="topbar">
-      <div><div class="eyebrow">HUNT READY</div><h1>30</h1></div>
+      <button class="brand" data-tab-jump="today" aria-label="Go to Today">
+        <span class="brand-mark">HR</span>
+        <span><small>HUNT READY</small><strong>30</strong></span>
+      </button>
       <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙︎</button>
     </header>
+
     <main id="main"></main>
-    <nav class="bottom-nav five">
-      <button data-tab="today" class="nav-btn active"><span>◉</span><small>Today</small></button>
-      <button data-tab="week" class="nav-btn"><span>▦</span><small>Week</small></button>
+
+    <nav class="bottom-nav">
+      <button data-tab="today" class="nav-btn active"><span>⌂</span><small>Today</small></button>
+      <button data-tab="train" class="nav-btn"><span>▦</span><small>Train</small></button>
       <button data-tab="learn" class="nav-btn"><span>▶</span><small>Learn</small></button>
       <button data-tab="progress" class="nav-btn"><span>↗</span><small>Progress</small></button>
-      <button data-tab="history" class="nav-btn"><span>≡</span><small>History</small></button>
+      <button data-tab="fuel" class="nav-btn"><span>＋</span><small>Fuel</small></button>
     </nav>
   </div>
-  <div id="modalBackdrop" class="modal-backdrop hidden"><section id="modal" class="modal"></section></div>
+
+  <div id="modalBackdrop" class="modal-backdrop hidden" aria-hidden="true">
+    <section id="modal" class="modal" role="dialog" aria-modal="true"></section>
+  </div>
+
+  <input id="importFileInput" type="file" accept="application/json" hidden />
   <script src="app.js"></script>
 </body>
 </html>
