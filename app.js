@@ -539,6 +539,10 @@ function learnCards(query='') {
 }
 function filterLearn(value) { $('#learnList').innerHTML = learnCards(value); }
 
+function renderBulletList(items) {
+  return `<ul class="guide-list">${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+}
+
 function showExerciseGuide(name, source) {
   const g = guideFor(name);
   const demo = DEMO_LINKS[name];
