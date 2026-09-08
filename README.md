@@ -15,7 +15,7 @@ A faith-rooted, hunting-specific fitness PWA built for short home workouts with 
 - Daily subjective readiness check-in
 - Daily Scripture and training focus
 - Exercise library with animated form drawings, cues, mistakes, and inline demo videos
-- Archery practice log
+- Archery Lab: practice log with AI target measurement, trends by distance, AI form check from a short video, and bow photo scan
 - Hunt-prep gear / legal checklist
 - Nutrition targets and manual meal tracker
 - Camera/photo meal journal
@@ -78,6 +78,6 @@ Alternative: set `ANTHROPIC_API_KEY` to a direct Anthropic key (`sk-ant-…`) fr
 
 After adding or changing variables, redeploy the latest production deployment so the function picks them up.
 
-The endpoint URL (`https://hunt-ready-30.vercel.app/api/analyze-meal`) goes into HUNT READY 30 → Settings → Secure AI nutrition endpoint.
+The endpoint URL (`https://hunt-ready-30.vercel.app/api/analyze-meal`) goes into HUNT READY 30 → Settings → Secure AI nutrition endpoint. The archery features use `api/analyze-archery.js` at the same host; the app derives that URL automatically.
 
 Error responses are JSON `{ "error": "...", "code": "..." }` and the app shows the message directly. HTTP 402 means the connected AI account has no credits.

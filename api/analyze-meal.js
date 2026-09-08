@@ -1,223 +1,34 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { gate, resolveCredentials, parseImageDataUrl, imageBlock, runVision } from '../lib/claude.js';
 
-// HUNT READY 30 — secure meal-photo nutrition endpoint (Claude).
-// The browser POSTs { imageDataUrl } and receives { name, calories, protein, carbs, fat, fiber, notes }.
-// The API key lives only in Vercel environment variables, never in the static app.
-
-// Credentials, in order of preference:
-//   1. AI_GATEWAY_API_KEY  — a Vercel AI Gateway key (starts with "vck_"); routes to Claude through the gateway
-//   2. ANTHROPIC_API_KEY   — either a gateway key pasted under this name (auto-detected) or a direct Anthropic key
-//   3. VERCEL_OIDC_TOKEN   — provided automatically by Vercel when OIDC is enabled for the project
-const GATEWAY_BASE_URL = 'https://ai-gateway.vercel.sh';
-
-function resolveCredentials() {
-  const gatewayKey = (process.env.AI_GATEWAY_API_KEY || '').trim();
-  const anthropicKey = (process.env.ANTHROPIC_API_KEY || '').trim();
-  const oidcToken = (process.env.VERCEL_OIDC_TOKEN || '').trim();
-  const modelOverride = (process.env.ANTHROPIC_MODEL || '').trim();
-
-  let mode = '', key = '';
-  if (gatewayKey) { mode = 'gateway'; key = gatewayKey; }
-  else if (anthropicKey.startsWith('vck_')) { mode = 'gateway'; key = anthropicKey; }
-  else if (anthropicKey) { mode = 'direct'; key = anthropicKey; }
-  else if (oidcToken) { mode = 'gateway'; key = oidcToken; }
-  if (!mode) return null;
-
-  let model = modelOverride || 'claude-opus-5';
-  if (mode === 'gateway' && !model.includes('/')) model = `anthropic/${model}`;
-  if (mode === 'direct' && model.startsWith('anthropic/')) model = model.slice('anthropic/'.length);
-  return { mode, key, model };
-}
-
-const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+// HUNT READY 30 — meal-photo nutrition estimate. POST { imageDataUrl } -> { name, calories, protein, carbs, fat, fiber, notes }
 
 const MEAL_SCHEMA = {
   type: 'object',
   properties: {
     name: { type: 'string', description: 'Short meal name, e.g. "Steak and eggs".' },
-    calories: { type: 'number', description: 'Estimated total kilocalories.' },
-    protein: { type: 'number', description: 'Estimated grams of protein.' },
-    carbs: { type: 'number', description: 'Estimated grams of carbohydrate.' },
-    fat: { type: 'number', description: 'Estimated grams of fat.' },
-    fiber: { type: 'number', description: 'Estimated grams of fiber.' },
-    notes: {
-      type: 'string',
-      description: 'Likely ingredients, portion-size assumptions, the most relevant estimated micronutrients (sodium, potassium, calcium, iron, vitamin B12 when applicable), and how uncertain the estimate is. Say so plainly if the image is ambiguous.'
-    }
+    calories: { type: 'number' }, protein: { type: 'number' }, carbs: { type: 'number' }, fat: { type: 'number' }, fiber: { type: 'number' },
+    notes: { type: 'string', description: 'Likely ingredients, portion assumptions, key micronutrients (sodium, potassium, calcium, iron, B12 when applicable), and how uncertain the estimate is.' }
   },
-  required: ['name', 'calories', 'protein', 'carbs', 'fat', 'fiber', 'notes'],
-  additionalProperties: false
+  required: ['name', 'calories', 'protein', 'carbs', 'fat', 'fiber', 'notes'], additionalProperties: false
 };
-
-const SYSTEM_PROMPT = `You estimate nutrition from a single photo of a meal for a personal food log used by an adult training for hunting season.
+const SYSTEM = `You estimate nutrition from a single photo of a meal for a personal food log used by an adult training for hunting season.
 Estimate realistic portion sizes from visual cues (plate size, utensils, packaging). Never claim the estimate is exact.
 If the photo is not food, or is too ambiguous to estimate, still return the JSON: use a descriptive name, zeros for the numbers, and explain the problem in notes.`;
 
-function parseImageDataUrl(value) {
-  const match = /^data:(image\/[a-z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+)$/i.exec(String(value || ''));
-  if (!match) return null;
-  const mediaType = match[1].toLowerCase();
-  if (!ALLOWED_IMAGE_TYPES.has(mediaType)) return null;
-  return { mediaType, data: match[2].replace(/\s+/g, '') };
-}
-
-function providerDetails(error) {
-  const body = error?.error;
-  const inner = body?.error && typeof body.error === 'object' ? body.error : body;
-  return {
-    message: String(inner?.message || error?.message || 'AI request failed.'),
-    type: String(inner?.type || '')
-  };
-}
-
-function mapProviderError(error, creds) {
-  const { message, type } = providerDetails(error);
-  const lower = message.toLowerCase();
-  const gateway = creds.mode === 'gateway';
-  if (Number(error?.status) === 402 || lower.includes('credit') || lower.includes('billing') || lower.includes('budget')) {
-    return {
-      status: 402,
-      error: gateway
-        ? (/free tier|not have access to this model|upgrade to paid/i.test(message)
-            ? `The free AI Gateway tier does not include the model "${creds.model}" or its fallbacks. In Vercel, open AI Gateway and buy a small credit top-up, or set ANTHROPIC_MODEL to a free-tier model.`
-            : 'AI Gateway credits are used up. In Vercel, open AI Gateway and add a credit card (this unlocks $5/month of free credits) or buy credits, then try again.')
-        : 'Anthropic API credits are exhausted (or billing is not set up). Add prepaid credits at console.anthropic.com → Settings → Billing, wait a minute or two, then try again.',
-      code: 'insufficient_credits'
-    };
-  }
-  if (error instanceof Anthropic.AuthenticationError) {
-    return {
-      status: 401,
-      error: gateway
-        ? 'Vercel AI Gateway rejected the key. In Vercel → Settings → Environment Variables, check AI_GATEWAY_API_KEY (it should start with vck_), then redeploy.'
-        : 'Anthropic rejected the server API key. Check ANTHROPIC_API_KEY in Vercel → Settings → Environment Variables, then redeploy.',
-      code: 'authentication_error'
-    };
-  }
-  if (error instanceof Anthropic.PermissionDeniedError) {
-    return { status: 403, error: message, code: type || 'permission_error' };
-  }
-  if (error instanceof Anthropic.NotFoundError) {
-    return { status: 404, error: `The AI provider could not find the requested model "${creds.model}". ${message}`, code: type || 'not_found_error' };
-  }
-  if (error instanceof Anthropic.RateLimitError) {
-    return { status: 429, error: 'Anthropic rate limit reached. Wait a moment and try again.', code: type || 'rate_limit_error' };
-  }
-  if (error instanceof Anthropic.BadRequestError) {
-    return { status: 400, error: message, code: type || 'invalid_request_error' };
-  }
-  if (error instanceof Anthropic.APIConnectionError) {
-    return { status: 502, error: 'The server could not reach Anthropic. Try again in a moment.', code: 'connection_error' };
-  }
-  if (error instanceof Anthropic.APIError) {
-    const status = Number(error.status) >= 500 ? 503 : Number(error.status) || 500;
-    return { status, error: status === 503 ? 'Anthropic is busy or had an error. Try again in a moment.' : message, code: type || `http_${error.status}` };
-  }
-  return { status: 500, error: message || 'Meal analysis failed.', code: 'server_error' };
-}
-
 export default async function handler(req, res) {
-  const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
-  const origin = req.headers.origin || '';
-
   const creds = resolveCredentials();
-  if (!creds) {
-    return res.status(500).json({ error: 'AI_GATEWAY_API_KEY is not configured. Add your Vercel AI Gateway key as an environment variable and redeploy.', code: 'missing_api_key' });
-  }
-  if (!allowed.length) {
-    return res.status(500).json({ error: 'ALLOWED_ORIGINS is not configured.', code: 'missing_allowed_origins' });
-  }
-  if (origin && !allowed.includes(origin)) {
-    return res.status(403).json({ error: 'Origin not allowed.', code: 'origin_not_allowed' });
-  }
-
-  res.setHeader('Access-Control-Allow-Origin', origin || allowed[0]);
-  res.setHeader('Vary', 'Origin');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'POST only.', code: 'method_not_allowed' });
-
+  if (!creds) return res.status(500).json({ error: 'AI_GATEWAY_API_KEY is not configured. Add your Vercel AI Gateway key as an environment variable and redeploy.', code: 'missing_api_key' });
+  if (gate(req, res)) return;
   const image = parseImageDataUrl(req.body?.imageDataUrl);
-  if (!image) {
-    return res.status(400).json({ error: 'A JPEG, PNG, GIF, or WebP meal image data URL is required.', code: 'bad_image' });
-  }
+  if (!image) return res.status(400).json({ error: 'A JPEG, PNG, GIF, or WebP meal image data URL is required.', code: 'bad_image' });
 
-  const client = creds.mode === 'gateway'
-    ? new Anthropic({ apiKey: creds.key, baseURL: GATEWAY_BASE_URL, maxRetries: 0 }) // free-tier 429s are not transient; retrying only burns the allowance
-    : new Anthropic({ apiKey: creds.key });
-
-  // Models to try in order. Through AI Gateway, the free tier does not include premium models,
-  // so fall back to the next model when the gateway says the current one is not accessible.
-  const FREE_TIER_FALLBACKS = ['anthropic/claude-sonnet-5', 'anthropic/claude-haiku-4.5'];
-  const candidates = creds.mode === 'gateway'
-    ? [creds.model, ...FREE_TIER_FALLBACKS.filter(m => m !== creds.model)]
-    : [creds.model];
-  const isModelAccessError = (error) => /free tier|not have access to this model|upgrade to paid/i.test(providerDetails(error).message);
-
-  let response = null, usedModel = creds.model, lastError = null;
-  const attempts = [];
-  try {
-    for (const model of candidates) {
-      try {
-        response = await client.messages.create({
-          model,
-          max_tokens: 1024,
-          system: SYSTEM_PROMPT,
-          output_config: {
-            effort: 'medium',
-            format: { type: 'json_schema', schema: MEAL_SCHEMA }
-          },
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.data } },
-              { type: 'text', text: 'Estimate the nutrition of the meal in this photo and return the JSON.' }
-            ]
-          }]
-        });
-        usedModel = model;
-        break;
-      } catch (error) {
-        attempts.push({ model, status: Number(error?.status) || 0, message: providerDetails(error).message });
-        if (creds.mode === 'gateway' && isModelAccessError(error)) { lastError = error; continue; }
-        throw error;
-      }
-    }
-    if (!response) throw lastError;
-
-    if (response.stop_reason === 'refusal') {
-      return res.status(422).json({ error: 'The AI declined to analyze this photo. Try a clearer photo of just the food.', code: 'refusal' });
-    }
-    if (response.stop_reason === 'max_tokens') {
-      return res.status(502).json({ error: 'The AI answer was cut off. Try again.', code: 'truncated' });
-    }
-
-    const text = response.content.find(block => block.type === 'text')?.text;
-    if (!text) return res.status(502).json({ error: 'No text returned by AI.', code: 'empty_response' });
-
-    let parsed;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      return res.status(502).json({ error: 'AI returned text that was not valid JSON. Try the photo again.', code: 'bad_ai_json' });
-    }
-
-    return res.status(200).json({
-      name: String(parsed.name || 'Meal'),
-      calories: Math.round(Number(parsed.calories) || 0),
-      protein: Math.round(Number(parsed.protein) || 0),
-      carbs: Math.round(Number(parsed.carbs) || 0),
-      fat: Math.round(Number(parsed.fat) || 0),
-      fiber: Math.round(Number(parsed.fiber) || 0),
-      notes: String(parsed.notes || 'AI estimate. Review before saving.'),
-      model: response.model || usedModel,
-      requested: creds.model,
-      via: creds.mode
-    });
-  } catch (error) {
-    const mapped = mapProviderError(error, creds);
-    const { message: detail } = providerDetails(error);
-    return res.status(mapped.status).json({ error: mapped.error, code: mapped.code, detail, via: creds.mode, model: creds.model, attempts });
-  }
+  const r = await runVision({ creds, system: SYSTEM, schema: MEAL_SCHEMA, maxTokens: 1024, effort: 'medium',
+    content: [imageBlock(image), { type: 'text', text: 'Estimate the nutrition of the meal in this photo and return the JSON.' }] });
+  if (!r.ok) return res.status(r.status).json(r.body);
+  const p = r.data;
+  return res.status(200).json({
+    name: String(p.name || 'Meal'), calories: Math.round(Number(p.calories) || 0), protein: Math.round(Number(p.protein) || 0),
+    carbs: Math.round(Number(p.carbs) || 0), fat: Math.round(Number(p.fat) || 0), fiber: Math.round(Number(p.fiber) || 0),
+    notes: String(p.notes || 'AI estimate. Review before saving.'), model: r.model, requested: creds.model, via: r.via
+  });
 }

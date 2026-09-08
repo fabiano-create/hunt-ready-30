@@ -1,3 +1,15 @@
+# HUNT READY 30 — Full Build 4.7.0
+
+## Archery Lab (replaces the Archery Log)
+- **Log**: attach a photo of the target and let the AI measure the group (size in inches, where it sits, sight-adjustment hint, flyers). Pick your target face once; the width is remembered. Photos are stored with the session.
+- **Trends**: group size over time per distance, with last / best / average, and a by-distance summary. Lower is better.
+- **Form check**: pick a 5–20 second video of one shot; the app pulls six still frames on the phone and the AI returns coaching observations (stance, bow arm and grip, draw, anchor, release, top fixes, drills). Reviews are saved with a thumbnail.
+- **Bow Profile**: photograph your bow and tap Scan; the AI reads brand, model, sight, rest, arrows, and handedness where legible. You confirm before saving. The photo is kept in the profile. New handedness field.
+
+## Backend
+- New `api/analyze-archery.js` (kinds: target, bow, form) sharing `lib/claude.js` with the meal endpoint. Same key, same endpoint setting; the app derives the archery URL from the meal one.
+- Backups now include every stored photo (meals, targets, bow, form-check thumbnails).
+
 # HUNT READY 30 — Full Build 4.6.0
 
 ## Added

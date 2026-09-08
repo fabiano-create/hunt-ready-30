@@ -123,3 +123,10 @@ main{padding:18px}
 .phase-row{padding:12px 0;border-bottom:1px solid var(--line);opacity:.6}.phase-row:last-child{border-bottom:0}.phase-row.current{opacity:1}
 .phase-row>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.phase-row small{color:var(--muted)}.phase-row.current strong{color:var(--accent-2)}.phase-row p{margin:4px 0 0}
 .archery-item.past{opacity:.55}
+
+/* archery lab */
+.segmented.three{grid-template-columns:1fr 1fr 1fr}
+.archery-row{display:flex;gap:10px;align-items:flex-start}
+.meal-photo.small{width:56px;height:56px;border-radius:10px;flex:none;font-size:20px}
+.frame-strip{display:flex;gap:6px;overflow-x:auto;padding:8px 0}.frame-strip img{height:72px;border-radius:8px;border:1px solid var(--line);flex:none}
+.form-feedback{margin-top:12px}.form-feedback .notice{margin-bottom:10px;font-size:13px}
