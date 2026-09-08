@@ -78,7 +78,9 @@ function mapProviderError(error, creds) {
     return {
       status: 402,
       error: gateway
-        ? 'AI Gateway credits are used up. In Vercel, open AI Gateway → Budgets & Spend and add a credit card (this unlocks $5/month of free credits) or buy credits, then try again.'
+        ? (/free tier|not have access to this model|upgrade to paid/i.test(message)
+            ? `The free AI Gateway tier does not include the model "${creds.model}" or its fallbacks. In Vercel, open AI Gateway and buy a small credit top-up, or set ANTHROPIC_MODEL to a free-tier model.`
+            : 'AI Gateway credits are used up. In Vercel, open AI Gateway and add a credit card (this unlocks $5/month of free credits) or buy credits, then try again.')
         : 'Anthropic API credits are exhausted (or billing is not set up). Add prepaid credits at console.anthropic.com → Settings → Billing, wait a minute or two, then try again.',
       code: 'insufficient_credits'
     };
@@ -145,23 +147,42 @@ export default async function handler(req, res) {
     ? new Anthropic({ apiKey: creds.key, baseURL: GATEWAY_BASE_URL })
     : new Anthropic({ apiKey: creds.key });
 
+  // Models to try in order. Through AI Gateway, the free tier does not include premium models,
+  // so fall back to the next model when the gateway says the current one is not accessible.
+  const FREE_TIER_FALLBACKS = ['anthropic/claude-sonnet-5', 'anthropic/claude-haiku-4.5'];
+  const candidates = creds.mode === 'gateway'
+    ? [creds.model, ...FREE_TIER_FALLBACKS.filter(m => m !== creds.model)]
+    : [creds.model];
+  const isModelAccessError = (error) => /free tier|not have access to this model|upgrade to paid/i.test(providerDetails(error).message);
+
+  let response = null, usedModel = creds.model, lastError = null;
   try {
-    const response = await client.messages.create({
-      model: creds.model,
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      output_config: {
-        effort: 'medium',
-        format: { type: 'json_schema', schema: MEAL_SCHEMA }
-      },
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.data } },
-          { type: 'text', text: 'Estimate the nutrition of the meal in this photo and return the JSON.' }
-        ]
-      }]
-    });
+    for (const model of candidates) {
+      try {
+        response = await client.messages.create({
+          model,
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          output_config: {
+            effort: 'medium',
+            format: { type: 'json_schema', schema: MEAL_SCHEMA }
+          },
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.data } },
+              { type: 'text', text: 'Estimate the nutrition of the meal in this photo and return the JSON.' }
+            ]
+          }]
+        });
+        usedModel = model;
+        break;
+      } catch (error) {
+        if (creds.mode === 'gateway' && isModelAccessError(error)) { lastError = error; continue; }
+        throw error;
+      }
+    }
+    if (!response) throw lastError;
 
     if (response.stop_reason === 'refusal') {
       return res.status(422).json({ error: 'The AI declined to analyze this photo. Try a clearer photo of just the food.', code: 'refusal' });
@@ -188,7 +209,8 @@ export default async function handler(req, res) {
       fat: Math.round(Number(parsed.fat) || 0),
       fiber: Math.round(Number(parsed.fiber) || 0),
       notes: String(parsed.notes || 'AI estimate. Review before saving.'),
-      model: response.model,
+      model: response.model || usedModel,
+      requested: creds.model,
       via: creds.mode
     });
   } catch (error) {
