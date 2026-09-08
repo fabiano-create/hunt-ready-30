@@ -193,6 +193,7 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     const mapped = mapProviderError(error, creds);
-    return res.status(mapped.status).json({ error: mapped.error, code: mapped.code });
+    const { message: detail } = providerDetails(error);
+    return res.status(mapped.status).json({ error: mapped.error, code: mapped.code, detail, via: creds.mode, model: creds.model });
   }
 }
