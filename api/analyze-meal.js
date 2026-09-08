@@ -156,6 +156,7 @@ export default async function handler(req, res) {
   const isModelAccessError = (error) => /free tier|not have access to this model|upgrade to paid/i.test(providerDetails(error).message);
 
   let response = null, usedModel = creds.model, lastError = null;
+  const attempts = [];
   try {
     for (const model of candidates) {
       try {
@@ -178,6 +179,7 @@ export default async function handler(req, res) {
         usedModel = model;
         break;
       } catch (error) {
+        attempts.push({ model, status: Number(error?.status) || 0, message: providerDetails(error).message });
         if (creds.mode === 'gateway' && isModelAccessError(error)) { lastError = error; continue; }
         throw error;
       }
@@ -216,6 +218,6 @@ export default async function handler(req, res) {
   } catch (error) {
     const mapped = mapProviderError(error, creds);
     const { message: detail } = providerDetails(error);
-    return res.status(mapped.status).json({ error: mapped.error, code: mapped.code, detail, via: creds.mode, model: creds.model });
+    return res.status(mapped.status).json({ error: mapped.error, code: mapped.code, detail, via: creds.mode, model: creds.model, attempts });
   }
 }
