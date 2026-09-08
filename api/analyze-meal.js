@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   const image = parseImageDataUrl(req.body?.imageDataUrl);
   if (!image) return res.status(400).json({ error: 'A JPEG, PNG, GIF, or WebP meal image data URL is required.', code: 'bad_image' });
 
-  const r = await runVision({ creds, system: SYSTEM, schema: MEAL_SCHEMA, maxTokens: 1024, effort: 'medium',
+  const r = await runVision({ creds, system: SYSTEM, schema: MEAL_SCHEMA, maxTokens: 6000, effort: 'medium',
     content: [imageBlock(image), { type: 'text', text: 'Estimate the nutrition of the meal in this photo and return the JSON.' }] });
   if (!r.ok) return res.status(r.status).json(r.body);
   const p = r.data;

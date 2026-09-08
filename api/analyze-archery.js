@@ -61,7 +61,8 @@ export default async function handler(req, res) {
   const kind = String(body.kind || '');
   if (!['target', 'bow', 'form'].includes(kind)) return res.status(400).json({ error: 'kind must be "target", "bow", or "form".', code: 'bad_kind' });
 
-  let schema, content, maxTokens = 1024, effort = 'medium';
+  // max_tokens must leave room for the model's thinking as well as the JSON answer
+  let schema, content, maxTokens = 6000, effort = 'medium';
   if (kind === 'target') {
     const image = parseImageDataUrl(body.imageDataUrl);
     if (!image) return res.status(400).json({ error: 'A JPEG, PNG, GIF, or WebP target photo is required.', code: 'bad_image' });
@@ -77,7 +78,7 @@ export default async function handler(req, res) {
     const frames = Array.isArray(body.frames) ? body.frames.map(parseImageDataUrl).filter(Boolean) : [];
     if (frames.length < 2 || frames.length > 10) return res.status(400).json({ error: 'Between 2 and 10 JPEG/PNG frames are required.', code: 'bad_frames' });
     const view = String(body.view || 'unknown'), hand = String(body.handedness || 'unknown'), note = String(body.note || '').slice(0, 400);
-    schema = FORM_SCHEMA; maxTokens = 1800; effort = 'high';
+    schema = FORM_SCHEMA; maxTokens = 12000; effort = 'medium';
     content = [
       { type: 'text', text: `These ${frames.length} frames are in time order from one shot. Camera view: ${view}. Archer is ${hand}-handed.${note ? ` Archer's note: ${note}` : ''}` },
       ...frames.flatMap((f, i) => [{ type: 'text', text: `Frame ${i + 1} of ${frames.length}:` }, imageBlock(f)]),
