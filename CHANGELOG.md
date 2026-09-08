@@ -1,3 +1,13 @@
+# HUNT READY 30 — Full Build 4.9.0
+
+## Equipment modes
+- **Bodyweight mode** (Settings → Equipment). Same week, same phases; every dumbbell slot swaps for a bodyweight movement. A loaded backpack stands in for the carries and can add load anywhere.
+- **Ladders instead of weights.** Squat, Hinge, Row, and Push-up ladders each have five levels (e.g. bodyweight squat → tempo → pause → split squat → Bulgarian). You log a level and reps; when every set hits the top of the rep range the summary tells you to move up. Progress and "Current loads & levels" show levels.
+- **Bands as an add-on** (checkbox). With bands, the row, RDL, rear-delt, and curl slots become banded versions logged by band strength.
+- **"Bodyweight today"** one-tap override on the Today screen for hotel rooms and deer camp. Reverts automatically tomorrow.
+- Bodyweight benchmarks (squat ladder level, table rows, single-leg RDL, backpack carry, push-ups, plank, ruck) replace the dumbbell ones in bodyweight mode.
+- 13 new exercise guides with videos: the four ladders, prone Y-T raise, backpack carry / suitcase carry / curl, single-leg calf raise, banded row, banded RDL, band pull-apart, band hammer curl.
+
 # HUNT READY 30 — Full Build 4.8.0
 
 ## Bow scan, reworked

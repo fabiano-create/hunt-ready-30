@@ -130,3 +130,7 @@ main{padding:18px}
 .meal-photo.small{width:56px;height:56px;border-radius:10px;flex:none;font-size:20px}
 .frame-strip{display:flex;gap:6px;overflow-x:auto;padding:8px 0}.frame-strip img{height:72px;border-radius:8px;border:1px solid var(--line);flex:none}
 .form-feedback{margin-top:12px}.form-feedback .notice{margin-bottom:10px;font-size:13px}
+
+/* equipment mode */
+.mode-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+.mode-tag{color:var(--accent-2);border-color:rgba(201,167,91,.4)}

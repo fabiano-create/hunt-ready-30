@@ -4,7 +4,7 @@ A faith-rooted, hunting-specific fitness PWA built for short home workouts with 
 
 ## Current feature set
 
-- 8-week, 30-min-or-less training program
+- 8-week, 30-min-or-less training program with dumbbell and bodyweight (+ bands) equipment modes
 - Per-set weight and rep logging
 - Carry, plank, ruck, circuit, and timed-work logging
 - Automatic current working-weight updates
