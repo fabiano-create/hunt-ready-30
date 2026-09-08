@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 4.4.0
+
+## Added
+- Self-hosted demo clips. Drop `media/demos/<exercise>.mp4` (optional `.jpg` poster) into the repo and the guide plays your clip instead of the YouTube demo, keeping a link to the coach's version. No configuration needed; see `media/demos/README.md`.
+- Settings → "Show clip file names" lists the exact file name for every exercise.
+- Service worker streams clips directly instead of caching them.
+
 # HUNT READY 30 — Full Build 4.3.0
 
 ## Exercise guides
