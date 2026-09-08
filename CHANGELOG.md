@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 4.5.0
+
+## Added
+- Rest timer alerts: ticks at 3-2-1, a double beep and vibration at GO, and a green GO flash on screen for phones on silent. Sounds are generated in code (no audio files) and unlock on the first tap inside a workout.
+- Settings → Rest timer alerts: sound and vibration toggles plus a TEST ALERT button.
+
 # HUNT READY 30 — Full Build 4.4.0
 
 ## Added
