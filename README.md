@@ -14,7 +14,7 @@ A faith-rooted, hunting-specific fitness PWA built for short home workouts with 
 - Body-weight and waist tracking
 - Daily subjective readiness check-in
 - Daily Scripture and training focus
-- Exercise library with cues, mistakes, and selected external demos
+- Exercise library with animated form drawings, cues, mistakes, and inline demo videos
 - Archery practice log
 - Hunt-prep gear / legal checklist
 - Nutrition targets and manual meal tracker

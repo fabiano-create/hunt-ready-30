@@ -1,4 +1,4 @@
-const APP_VERSION = "4.2.0-full";
+const APP_VERSION = "4.3.0-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -287,30 +287,29 @@ const EXERCISE_GUIDES = {
 };
 
 
-const DEMO_LINKS = {
-  "Goblet Squat": {label:"Watch NASM demo", url:"https://www.youtube.com/watch?v=nfX7IFK9UNI"},
-  "DB Romanian Deadlift": {label:"Watch NASM demo", url:"https://www.youtube.com/watch?v=V8Hdl1FiNt4"},
-  "Hip Hinge": {label:"Watch hinge/RDL demo", url:"https://www.youtube.com/watch?v=V8Hdl1FiNt4"},
-  "Plank": {label:"Watch NASM demo", url:"https://www.youtube.com/watch?v=mwlp75MS6Rg"},
-  "Push-Ups": {label:"Watch NASM demo", url:"https://www.youtube.com/watch?v=WDIpL0pjun0"},
-  "Warm-up": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Shoulder Prep": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Dynamic Warm-up": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "1-Arm DB Row": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "DB Floor Press": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Bent-Over Rear-Delt Raise": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Hammer Curl": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Reverse Lunge": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Standing Calf Raise": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Farmer Carry": {label:"Open ACE movement resource", url:"https://www.acefitness.org/resources/pros/expert-articles/9145/a-hyrox-inspired-workout-combining-functional-and-cardio-training/"},
-  "Suitcase Carry": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Weighted Walk / Ruck": {label:"No video needed — read form cues", url:""},
-  "Step-Up": {label:"Open ACE movement resource", url:"https://www.acefitness.org/resources/pros/expert-articles/9145/a-hyrox-inspired-workout-combining-functional-and-cardio-training/"},
-  "20-Min Hunter Circuit": {label:"Open exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Easy Weighted Walk": {label:"No video needed — read form cues", url:""},
-  "Mobility": {label:"Open NASM exercise library", url:"https://www.nasm.org/resource-center/exercise-library"},
-  "Bodyweight Squat": {label:"Watch goblet squat pattern", url:"https://www.youtube.com/watch?v=nfX7IFK9UNI"},
-  "Marching": {label:"No video needed — read form cues", url:""}
+// Short, specific demonstration videos (YouTube). Played inline on tap; offline the drawn form guide still works.
+const DEMO_VIDEOS = {
+  "Hip Hinge":               {id:"2W_gXhut5S8", channel:"Hinge Health (physical therapists)", length:"0:58"},
+  "Goblet Squat":            {id:"CkFzgR55gho", channel:"Physique Development", length:"1:27"},
+  "Bodyweight Squat":        {id:"P-yaD24bUE8", channel:"Runna", length:"0:47"},
+  "DB Romanian Deadlift":    {id:"hQgFixeXdZo", channel:"J2FIT Strength & Conditioning", length:"1:19"},
+  "Reverse Lunge":           {id:"Ry-wqegeKlE", channel:"Dr. Carl Baird", length:"0:59"},
+  "1-Arm DB Row":            {id:"dFzUjzfih7k", channel:"Max Euceda (2-minute tutorial)", length:"2:00"},
+  "DB Floor Press":          {id:"Bx4QPVH-J1g", channel:"Colossus Fitness", length:"1:51"},
+  "Farmer Carry":            {id:"NH7Xv-7NQNQ", channel:"Buff Dudes Workouts", length:"1:30"},
+  "Suitcase Carry":          {id:"y-hn_Ha1-RE", channel:"Dr. Carl Baird", length:"0:57"},
+  "Step-Up":                 {id:"WCFCdxzFBa4", channel:"Get Exercise Confident", length:"2:52"},
+  "Plank":                   {id:"kL_NJAkCQBg", channel:"Calisthenicmovement", length:"2:19"},
+  "Push-Ups":                {id:"IODxDxX7oi4", channel:"Calisthenicmovement", length:"3:38"},
+  "Bent-Over Rear-Delt Raise":{id:"ttvfGg9d76c", channel:"ScottHermanFitness", length:"1:42"},
+  "Hammer Curl":             {id:"BRVDS6HVR9Q", channel:"Buff Dudes Workouts", length:"1:30"},
+  "Standing Calf Raise":     {id:"CtyIVeJH6lI", channel:"Rehab and Revive (physical therapist)", length:"1:48"},
+  "Shoulder Prep":           {id:"ztQRlsR44M8", channel:"Squat University", length:"5:45"},
+  "Warm-up":                 {id:"LKSC_KujZ4g", channel:"Kaleigh Cohen Strength (follow-along)", length:"5:41"},
+  "Dynamic Warm-up":         {id:"LKSC_KujZ4g", channel:"Kaleigh Cohen Strength (follow-along)", length:"5:41"},
+  "Mobility":                {id:"dBYjU7iBpck", channel:"Squat University (follow-along)", length:"11:06"},
+  "Weighted Walk / Ruck":    {id:"rdQ7k5JhoHA", channel:"GORUCK", length:"1:20"},
+  "Easy Weighted Walk":      {id:"rdQ7k5JhoHA", channel:"GORUCK", length:"1:20"}
 };
 
 const LEARN_ORDER = [
@@ -426,14 +425,63 @@ function viewHistory(id,date){ const h=getState().history; const x=h.find(v=>(id
 function historyLogMarkup(logs){ if(!logs.length) return '<div class="empty">No detailed sets were logged.</div>'; const groups={}; logs.forEach(l=>(groups[l.name]??=[]).push(l)); return Object.entries(groups).map(([name,arr])=>`<section class="card flat"><div class="kicker">${esc(name)}</div>${arr.map(l=>`<div class="weight-row"><span>Set ${l.set||'—'}</span><strong>${logDescription(l)}</strong></div>`).join('')}</section>`).join(''); }
 function logDescription(l){ if(l.type==='ruck') return `${l.weight||0} lb • ${l.minutes||0} min${l.distance?` • ${l.distance} mi`:''}`; if(l.type==='carry') return `${l.weight||0} lb • ${l.seconds||0} sec`; if(l.type==='timed') return `${l.seconds||0} sec`; if(l.type==='circuit') return `${l.rounds||0} rounds`; if(l.weight||l.reps) return `${l.weight||0} lb × ${l.reps||0}`; return esc(l.note||'Completed'); }
 
-function renderLearn(){ $('#main').innerHTML=`<section class="card"><div class="kicker">EXERCISE LIBRARY</div><h2>Learn the movement before you load it.</h2><p class="sub">Written guidance works offline. External videos open when you have a connection.</p><div class="notice"><strong>Start here:</strong> Hip Hinge → Goblet Squat → DB Romanian Deadlift.</div></section><div class="learn-search-wrap"><input id="learnSearch" class="learn-search" placeholder="Search exercises…" oninput="filterLearn(this.value)"></div><div id="learnList">${learnCards('')}</div>`; }
-function learnCards(query=''){ const q=query.trim().toLowerCase(); const names=LEARN_ORDER.filter(n=>!q||n.toLowerCase().includes(q)||(guideFor(n).why||'').toLowerCase().includes(q)); return names.length?names.map((name,i)=>{const g=guideFor(name),video=DEMO_LINKS[name]?.url?'<span class="tag">Video/resource</span>':'<span class="tag">Offline guide</span>'; return `<section class="card learn-card" onclick='showExerciseGuide(${JSON.stringify(name)},"learn")'><div class="learn-card-top"><div class="exercise-num">${i+1}</div><div><h3>${esc(name)}</h3><p class="sub">${esc(g.subtitle||'')}</p></div></div><div class="tag-row">${video}<span class="tag">Form cues</span><span class="tag">Common mistakes</span></div><button class="ghost learn-open">Open guide →</button></section>`;}).join(''):'<div class="empty">No exercises match that search.</div>'; }
+function renderLearn(){ $('#main').innerHTML=`<section class="card"><div class="kicker">EXERCISE LIBRARY</div><h2>Learn the movement before you load it.</h2><p class="sub">Each guide has a form drawing and written cues that work offline, plus a short demo video you can play right here when you have a connection.</p><div class="notice"><strong>Start here:</strong> Hip Hinge → Goblet Squat → DB Romanian Deadlift.</div></section><div class="learn-search-wrap"><input id="learnSearch" class="learn-search" placeholder="Search exercises…" oninput="filterLearn(this.value)"></div><div id="learnList">${learnCards('')}</div>`; }
+function learnCards(query=''){ const q=query.trim().toLowerCase(); const names=LEARN_ORDER.filter(n=>!q||n.toLowerCase().includes(q)||(guideFor(n).why||'').toLowerCase().includes(q)); return names.length?names.map((name,i)=>{const g=guideFor(name),video=DEMO_VIDEOS[name]?'<span class="tag">▶ Video demo</span>':'<span class="tag">Written guide</span>',drawing=FORM_POSES[name]?'<span class="tag">Form drawing</span>':''; return `<section class="card learn-card" onclick='showExerciseGuide(${JSON.stringify(name)},"learn")'><div class="learn-card-top"><div class="exercise-num">${i+1}</div><div><h3>${esc(name)}</h3><p class="sub">${esc(g.subtitle||'')}</p></div></div><div class="tag-row">${video}${drawing}<span class="tag">Form cues</span><span class="tag">Common mistakes</span></div><button class="ghost learn-open">Open guide →</button></section>`;}).join(''):'<div class="empty">No exercises match that search.</div>'; }
 function filterLearn(v){ $('#learnList').innerHTML=learnCards(v); }
 function guideFor(name){ return EXERCISE_GUIDES[name]||{subtitle:"Quick coaching notes",steps:["Move slowly and with control.","Use a load that keeps form clean."],cues:["Neutral spine.","Steady breathing."],mistakes:["Going too heavy too soon."],why:"Master the pattern first and the load second."}; }
 function renderBulletList(items){ return `<ul class="guide-list">${items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
-function showExerciseGuide(name,source){ const g=guideFor(name),demo=DEMO_LINKS[name],fromWorkout=source==='workout'||(!!active&&source!=='learn'); if(fromWorkout&&modalIsOpen()) navPush({kind:'guide'}); openModal(`<div class="close-row"><div><div class="kicker">EXERCISE GUIDE</div><h2>${esc(name)}</h2></div><button class="icon-btn" onclick="${fromWorkout?'returnToWorkout()':'closeModal()'}">${fromWorkout?'‹':'×'}</button></div><p class="sub">${esc(g.subtitle||'')}</p>${demo?.url?`<a class="demo-button" href="${demo.url}" target="_blank" rel="noopener">▶ ${esc(demo.label)}</a>`:''}<div class="form-visual">${motionVisual(name)}</div>${g.steps?`<div class="card flat"><div class="kicker">HOW TO DO IT</div>${renderBulletList(g.steps)}</div>`:''}${g.cues?`<div class="card flat"><div class="kicker">COACHING CUES</div>${renderBulletList(g.cues)}</div>`:''}${g.mistakes?`<div class="card flat"><div class="kicker">COMMON MISTAKES</div>${renderBulletList(g.mistakes)}</div>`:''}${g.why?`<div class="card flat"><div class="kicker">WHY IT'S HERE</div><p class="sub">${esc(g.why)}</p></div>`:''}`); }
+function showExerciseGuide(name,source){ const g=guideFor(name),demo=DEMO_VIDEOS[name],fromWorkout=source==='workout'||(!!active&&source!=='learn'); if(fromWorkout&&modalIsOpen()) navPush({kind:'guide'}); openModal(`<div class="close-row"><div><div class="kicker">EXERCISE GUIDE</div><h2>${esc(name)}</h2></div><button class="icon-btn" onclick="${fromWorkout?'returnToWorkout()':'closeModal()'}">${fromWorkout?'‹':'×'}</button></div><p class="sub">${esc(g.subtitle||'')}</p><div class="form-visual">${motionVisual(name)}</div>${demo?videoCard(name,demo):''}${g.steps?`<div class="card flat"><div class="kicker">HOW TO DO IT</div>${renderBulletList(g.steps)}</div>`:''}${g.cues?`<div class="card flat"><div class="kicker">COACHING CUES</div>${renderBulletList(g.cues)}</div>`:''}${g.mistakes?`<div class="card flat"><div class="kicker">COMMON MISTAKES</div>${renderBulletList(g.mistakes)}</div>`:''}${g.why?`<div class="card flat"><div class="kicker">WHY IT'S HERE</div><p class="sub">${esc(g.why)}</p></div>`:''}`); }
+function videoCard(name,v){ return `<div class="video-card" id="video-${v.id}"><button class="video-thumb" onclick='playDemoVideo(${JSON.stringify(v.id)})' aria-label="Play ${esc(name)} demo video"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy" onerror="this.parentElement.classList.add('offline')"><span class="play">▶</span><span class="offline-note">Video needs a connection. The drawing and steps work offline.</span></button><div class="video-meta"><strong>Watch the demo</strong><small>${esc(v.channel)} • ${esc(v.length)}</small><a class="ghost" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Open in YouTube →</a></div></div>`; }
+function playDemoVideo(id){ const card=$('#video-'+id); if(!card) return; card.innerHTML=`<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1" title="Exercise demo video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`; }
 function returnToWorkout(){ if(active){ navConsume('guide'); rerenderWorkout(); } else closeModal(); }
-function motionVisual(name){ const visual=['Hip Hinge','DB Romanian Deadlift','Goblet Squat','Reverse Lunge','Step-Up','Farmer Carry','Suitcase Carry','Plank','Push-Ups']; if(!visual.includes(name)) return `<div class="visual-placeholder"><span>FORM</span><strong>${esc(name)}</strong><small>Use the steps + cues below, then open the video/resource when available.</small></div>`; const hinge=['Hip Hinge','DB Romanian Deadlift'].includes(name); return `<div class="two-position"><div class="pose"><span>${hinge?'START':'POSITION 1'}</span><div class="stick-person upright"><i class="head"></i><i class="torso"></i><i class="arm a1"></i><i class="arm a2"></i><i class="leg l1"></i><i class="leg l2"></i></div></div><div class="arrow">→</div><div class="pose"><span>${hinge?'HINGE':'POSITION 2'}</span><div class="stick-person ${hinge?'hinge':'upright'}"><i class="head"></i><i class="torso"></i><i class="arm a1"></i><i class="arm a2"></i><i class="leg l1"></i><i class="leg l2"></i></div></div></div>`; }
+// ---- Offline form drawings ----
+// Side view, figure faces right. viewBox 0 0 160 150, floor at y=138. Each entry has two frames (A -> B) that cross-fade.
+const FORM_POSES = {
+  "Hip Hinge": { labels:["STAND TALL","HIPS BACK"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[84,56],hand:[86,78]},
+                 B:{head:[122,52],neck:[113,58],hip:[68,90],kneeF:[76,114],ankleF:[80,136],footF:[93,138],elbow:[113,80],hand:[113,102]}, note:"Shins stay near vertical. The bend comes from the hips, not the waist." },
+  "DB Romanian Deadlift": { labels:["START","HINGE"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[84,56],hand:[86,80],db:[[86,84]]},
+                 B:{head:[122,52],neck:[113,58],hip:[68,90],kneeF:[76,114],ankleF:[80,136],footF:[93,138],elbow:[113,80],hand:[113,104],db:[[113,108]]}, note:"Dumbbells slide down the thighs and stay close to the legs." },
+  "Goblet Squat": { labels:["TOP","BOTTOM"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[90,54],hand:[92,40],db:[[94,36]]},
+                 B:{head:[92,48],neck:[88,58],hip:[66,100],kneeF:[96,108],ankleF:[86,136],footF:[99,138],elbow:[98,78],hand:[100,64],db:[[102,60]]}, note:"Whole foot stays flat. Chest stays proud as you sit between the hips." },
+  "Bodyweight Squat": { labels:["TOP","BOTTOM"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[96,40],hand:[112,40]},
+                 B:{head:[92,48],neck:[88,58],hip:[66,100],kneeF:[96,108],ankleF:[86,136],footF:[99,138],elbow:[104,62],hand:[120,60]}, note:"Arms reach forward for balance. Knees track over the toes." },
+  "Reverse Lunge": { labels:["STAND","STEP BACK"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[84,56],hand:[86,80],db:[[86,84]]},
+                 B:{head:[84,30],neck:[84,42],hip:[80,86],kneeF:[100,104],ankleF:[100,136],footF:[113,138],kneeB:[60,122],ankleB:[42,128],footB:[34,138],elbow:[84,68],hand:[84,92],db:[[84,96]]}, note:"Front shin stays vertical. Most of the work is in the front leg." },
+  "Step-Up": { labels:["FOOT ON STEP","STAND UP"], box:[96,108,54,30], A:{head:[74,30],neck:[74,42],hip:[74,88],kneeF:[100,90],ankleF:[100,108],footF:[113,108],kneeB:[74,114],ankleB:[74,136],footB:[87,138],elbow:[74,66],hand:[74,90],db:[[74,94]]},
+                 B:{head:[112,2],neck:[112,14],hip:[112,58],kneeF:[112,84],ankleF:[112,106],footF:[125,108],kneeB:[104,82],ankleB:[100,104],footB:[104,106],elbow:[112,38],hand:[112,62],db:[[112,66]]}, note:"Drive through the whole foot on the step. Don't push off the back leg." },
+  "Push-Ups": { labels:["TOP","BOTTOM"], A:{head:[132,90],neck:[122,96],hip:[74,106],kneeF:[50,112],ankleF:[26,120],footF:[20,138],elbow:[124,118],hand:[126,138]},
+                 B:{head:[134,112],neck:[124,118],hip:[74,124],kneeF:[50,128],ankleF:[26,132],footF:[20,138],elbow:[146,126],hand:[126,138]}, note:"Body stays one straight line from head to heels. Elbows about 45° from the body." },
+  "Plank": { labels:["HOLD","HOLD"], A:{head:[130,92],neck:[120,98],hip:[74,108],kneeF:[50,114],ankleF:[26,122],footF:[20,138],elbow:[124,138],hand:[144,138]},
+                 B:{head:[130,92],neck:[120,98],hip:[74,108],kneeF:[50,114],ankleF:[26,122],footF:[20,138],elbow:[124,138],hand:[144,138]}, note:"Squeeze glutes, ribs down, breathe. No sagging hips, no piking." },
+  "1-Arm DB Row": { labels:["ARM LONG","ELBOW TO HIP"], box:[118,104,32,34], A:{head:[122,50],neck:[112,58],hip:[68,90],kneeF:[76,114],ankleF:[80,136],footF:[93,138],elbow2:[126,86],hand2:[130,104],elbow:[108,84],hand:[106,108],db:[[106,112]]},
+                 B:{head:[122,50],neck:[112,58],hip:[68,90],kneeF:[76,114],ankleF:[80,136],footF:[93,138],elbow2:[126,86],hand2:[130,104],elbow:[92,74],hand:[104,90],db:[[104,94]]}, note:"Flat back. Pull the elbow toward the back pocket, not up to the shoulder." },
+  "DB Floor Press": { labels:["PRESS UP","LOWER"], A:{head:[18,128],neck:[28,126],hip:[80,128],kneeF:[100,106],ankleF:[112,136],footF:[122,138],elbow:[34,100],hand:[36,74],db:[[36,70]]},
+                 B:{head:[18,128],neck:[28,126],hip:[80,128],kneeF:[100,106],ankleF:[112,136],footF:[122,138],elbow:[46,124],hand:[42,100],db:[[42,96]]}, note:"Upper arms touch the floor lightly at the bottom, then press straight up." },
+  "Farmer Carry": { labels:["STEP","STEP"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[92,110],ankleF:[98,136],footF:[110,138],kneeB:[70,110],ankleB:[62,136],footB:[56,138],elbow:[80,56],hand:[80,84],db:[[80,88]],elbow2:[80,56],hand2:[80,84],db2:[[80,88]]},
+                 B:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[70,110],ankleF:[62,136],footF:[74,138],kneeB:[92,110],ankleB:[98,136],footB:[110,138],elbow:[80,56],hand:[80,84],db:[[80,88]],elbow2:[80,56],hand2:[80,84]}, note:"Tall posture, ribs over hips, short controlled steps." },
+  "Suitcase Carry": { labels:["STEP","STEP"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[92,110],ankleF:[98,136],footF:[110,138],kneeB:[70,110],ankleB:[62,136],footB:[56,138],elbow:[80,56],hand:[80,84],db:[[80,88]],elbow2:[70,52],hand2:[62,68]},
+                 B:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[70,110],ankleF:[62,136],footF:[74,138],kneeB:[92,110],ankleB:[98,136],footB:[110,138],elbow:[80,56],hand:[80,84],db:[[80,88]],elbow2:[70,52],hand2:[62,68]}, note:"One dumbbell. Don't lean away from it or toward it. Belt buckle stays level." },
+  "Standing Calf Raise": { labels:["FLAT","UP ON TOES"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],heel:[70,138],footF:[94,138],elbow:[96,50],hand:[112,48]},
+                 B:{head:[80,8],neck:[80,20],hip:[80,72],kneeF:[80,100],ankleF:[82,126],heel:[72,128],footF:[94,138],elbow:[96,40],hand:[112,38]}, note:"Full range: all the way up, pause, all the way down under control." },
+  "Bent-Over Rear-Delt Raise": { labels:["ARMS DOWN","RAISE"], A:{head:[122,52],neck:[113,58],hip:[68,90],kneeF:[76,114],ankleF:[80,136],footF:[93,138],elbow:[113,82],hand:[111,104],db:[[111,108]]},
+                 B:{head:[122,52],neck:[113,58],hip:[68,90],kneeF:[76,114],ankleF:[80,136],footF:[93,138],elbow:[104,54],hand:[96,50],db:[[93,48]]}, note:"Stay hinged. Small weights, slight elbow bend, raise out to the sides." },
+  "Hammer Curl": { labels:["DOWN","CURL"], A:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[82,56],hand:[84,80],db:[[84,84]]},
+                 B:{head:[80,18],neck:[80,30],hip:[80,82],kneeF:[80,110],ankleF:[80,136],footF:[93,138],elbow:[82,56],hand:[100,44],db:[[104,42]]}, note:"Elbows stay pinned at your sides. Palms face each other the whole time." }
+};
+function poseFrame(f, dim){
+  const L=(a,b,cls='')=>a&&b?`<line class="${cls}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`:'';
+  const P=(pts,cls='')=>{const v=pts.filter(Boolean);return v.length>1?`<polyline class="${cls}" points="${v.map(p=>p.join(',')).join(' ')}"/>`:'';};
+  const DB=(arr)=>(arr||[]).map(([x,y])=>`<rect class="db" x="${x-7}" y="${y-3}" width="14" height="6" rx="2"/>`).join('');
+  return `<g class="fig ${dim?'dim':''}">${P([f.kneeB&&f.hip,f.kneeB,f.ankleB,f.footB],'limb back')}${L(f.neck,f.elbow2,'limb back')}${L(f.elbow2,f.hand2,'limb back')}${DB(f.db2)}`+
+         `${L(f.neck,f.hip,'torso')}${P([f.hip,f.kneeF,f.ankleF,f.footF],'limb')}${f.heel?L(f.heel,f.ankleF,'limb')+L(f.heel,f.footF,'limb'):''}${L(f.neck,f.elbow,'limb')}${L(f.elbow,f.hand,'limb')}${DB(f.db)}<circle class="head" cx="${f.head[0]}" cy="${f.head[1]}" r="8"/></g>`;
+}
+function formDrawing(name){
+  const p=FORM_POSES[name]; if(!p) return '';
+  const box=p.box?`<rect class="box" x="${p.box[0]}" y="${p.box[1]}" width="${p.box[2]}" height="${p.box[3]}" rx="2"/>`:'';
+  const still=p.labels[0]===p.labels[1];
+  return `<div class="form-drawing ${still?'still':''}"><svg viewBox="0 0 160 150" aria-label="${esc(name)} form drawing"><line class="floor" x1="6" y1="138" x2="154" y2="138"/>${box}<g class="frame fA">${poseFrame(p.A)}</g><g class="frame fB">${poseFrame(p.B)}</g></svg><div class="form-labels"><span class="lA">${esc(p.labels[0])}</span>${still?'':'<span class="arrow">⇄</span>'}<span class="lB">${still?'':esc(p.labels[1])}</span></div>${p.note?`<p class="note form-note">${esc(p.note)}</p>`:''}</div>`;
+}
+function motionVisual(name){ const d=formDrawing(name); if(d) return d; return `<div class="visual-placeholder"><span>FORM</span><strong>${esc(name)}</strong><small>Use the steps + cues below, then play the video when you have a connection.</small></div>`; }
 
 function workingWeightExercises(){ const names=[]; Object.values(PROGRAM).flatMap(w=>w.exercises).forEach(e=>{ if(['strength','carry'].includes(e.type)&&!names.includes(e.name)) names.push(e.name); }); return names; }
 function renderProgress(){

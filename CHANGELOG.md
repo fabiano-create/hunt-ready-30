@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 4.3.0
+
+## Exercise guides
+- Every movement now has a specific, short demonstration video from a reputable coach or physical therapist (no more generic library links). Videos play inline in the guide with one tap; an "Open in YouTube" link is there too.
+- New animated form drawings (start → finish position) for 15 movements, including hip hinge, goblet squat, RDL, reverse lunge, step-up, push-up, plank, row, floor press, carries, calf raise, rear-delt raise, and hammer curl. Drawings and written cues work fully offline; the video shows an offline note when there is no connection.
+- Learn tab cards now show "Video demo" and "Form drawing" tags.
+
 # HUNT READY 30 — Full Build 4.2.0
 
 ## Fixed
