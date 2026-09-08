@@ -1,3 +1,13 @@
+# HUNT READY 30 — Full Build 5.0.0
+
+## New look: "Field light, instrument numbers"
+- Today opens on a full-width dawn scene that changes with the training phase (Base, Build, Peak, Taper), with film grain and a vignette. Cards are frosted glass over it; the top bar is transparent at the top and turns solid as you scroll.
+- The countdown is now a gauge: monospaced days-out readout, phase and opening-day readouts, a status light, and a 30-tick plan bar. Sessions this week, streak, and body weight sit beneath it as readouts.
+- Typography: Barlow Condensed for headings and labels, Share Tech Mono for every number, Source Sans 3 for body text, Libre Baskerville for scripture only. Fonts are cached by the service worker for offline use and fall back to system faces until loaded.
+- Palette blends amber light with deep green and teal shadow; the gold accent is kept; status green marks what is on track.
+- Rest timer is a large monospaced readout with a draining track. Charts draw an amber line over a teal fill with the latest point highlighted and monospaced axis labels. Benchmarks show a percent readout.
+- Every drawing, video, and piece of logic is unchanged.
+
 # HUNT READY 30 — Full Build 4.9.0
 
 ## Equipment modes
