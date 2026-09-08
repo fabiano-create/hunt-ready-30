@@ -25,7 +25,7 @@ A faith-rooted, hunting-specific fitness PWA built for short home workouts with 
 
 ## Important: AI meal-photo analysis
 
-This is a static GitHub Pages app. Do **not** put a private OpenAI or other AI provider API key directly into `app.js`, browser localStorage, or the Settings field.
+This is a static GitHub Pages app. Do **not** put a private Anthropic (Claude) or other AI provider API key directly into `app.js`, browser localStorage, or the Settings field.
 
 The app expects an optional secure server endpoint configured in Settings. It POSTs:
 
@@ -64,14 +64,18 @@ Replace these files when publishing a new version:
 The `icons` folder only needs replacing when the app icon changes.
 
 
-## Optional AI backend with Vercel
+## AI backend on Vercel (Claude)
 
-This package also contains `api/analyze-meal.js`, `package.json`, and `vercel.json` so the same repository can later be deployed on Vercel with a secure meal-photo endpoint.
+`api/analyze-meal.js` is a Vercel serverless function that sends the meal photo to Claude (Anthropic API) using the official `@anthropic-ai/sdk` and structured JSON output, then returns the nutrition estimate to the app. The same GitHub repository deploys to both GitHub Pages (the app) and Vercel (the backend).
 
 Required Vercel environment variables:
 
-- `OPENAI_API_KEY` — server-side only
+- `ANTHROPIC_API_KEY` — server-side only (Secret). Create it at console.anthropic.com → API Keys. The Anthropic API is billed separately from a Claude Max subscription; add a small prepaid balance under Settings → Billing.
 - `ALLOWED_ORIGINS` — comma-separated allowed browser origins, for example `https://fabiano-create.github.io`
-- `OPENAI_MODEL` — optional; defaults to `gpt-5.6-luna`
+- `ANTHROPIC_MODEL` — optional; defaults to `claude-opus-5`
 
-When deployed, put the resulting endpoint URL (for example `https://your-app.vercel.app/api/analyze-meal`) into HUNT READY 30 → Settings → Secure AI nutrition endpoint.
+After adding or changing variables, redeploy the latest production deployment so the function picks them up.
+
+The endpoint URL (`https://hunt-ready-30.vercel.app/api/analyze-meal`) goes into HUNT READY 30 → Settings → Secure AI nutrition endpoint.
+
+Error responses are JSON `{ "error": "...", "code": "..." }` and the app shows the message directly. HTTP 402 means the Anthropic account has no API credits.

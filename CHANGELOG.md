@@ -1,3 +1,19 @@
+# HUNT READY 30 — Full Build 4.1.0
+
+## Changed
+- AI meal-photo analysis now runs on Claude (Anthropic API, `claude-opus-5`) instead of OpenAI.
+- Backend uses the official `@anthropic-ai/sdk` with structured JSON output, so the nutrition JSON is schema-guaranteed (no more code-fence stripping).
+- Numbers are rounded to whole units before they reach the app.
+
+## Backend errors
+- Provider errors are mapped to clear messages and codes: no API credits (402), bad API key (401), rate limit (429), Anthropic busy (503), refusal (422), and setup problems (500).
+
+## App
+- Fuel-tab error messages updated for Anthropic wording and the `ANTHROPIC_API_KEY` variable.
+
+## Setup
+- Vercel now needs `ANTHROPIC_API_KEY` (Secret) and `ALLOWED_ORIGINS`. `OPENAI_API_KEY` is no longer used and can be deleted.
+
 # HUNT READY 30 — Full Build 4.0.1
 
 ## Fixed
