@@ -1,4 +1,4 @@
-const APP_VERSION = "4.7.2-full";
+const APP_VERSION = "4.8.0-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -324,7 +324,7 @@ const STORE = {
   set(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
 };
 let active = null, workoutTimer = null, restTimer = null, trainView = "week", progressExerciseName = "Goblet Squat", pendingMealPhoto = null;
-let archeryView = 'log', archeryDistance = null, pendingTargetPhoto = null, pendingBowPhoto = null, pendingFormFrames = null, lastFormResult = null;
+let archeryView = 'log', archeryDistance = null, pendingTargetPhoto = null, pendingBowPhotos = [], pendingFormFrames = null, lastFormResult = null;
 
 function migrateLegacy(){
   if(!localStorage.hr30_startDate) localStorage.hr30_startDate = new Date().toISOString().slice(0,10);
@@ -632,9 +632,9 @@ async function loadMealPhotos(meals){ for(const m of meals){ const src=await Pho
 const PhotoStore={ db:null, open(){ if(this.db)return Promise.resolve(this.db); return new Promise((resolve,reject)=>{const req=indexedDB.open('huntReady30',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('mealPhotos'))req.result.createObjectStore('mealPhotos');};req.onsuccess=()=>{this.db=req.result;resolve(this.db)};req.onerror=()=>reject(req.error);});}, async set(id,data){const db=await this.open();return new Promise((res,rej)=>{const tx=db.transaction('mealPhotos','readwrite');tx.objectStore('mealPhotos').put(data,id);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}, async get(id){try{const db=await this.open();return await new Promise((res,rej)=>{const r=db.transaction('mealPhotos').objectStore('mealPhotos').get(id);r.onsuccess=()=>res(r.result||'');r.onerror=()=>rej(r.error);});}catch{return '';}}, async del(id){try{const db=await this.open();return await new Promise((res,rej)=>{const tx=db.transaction('mealPhotos','readwrite');tx.objectStore('mealPhotos').delete(id);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}catch{}}, async keys(){try{const db=await this.open();return await new Promise((res,rej)=>{const r=db.transaction('mealPhotos').objectStore('mealPhotos').getAllKeys();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error);});}catch{return [];}} };
 
 function openBowProfile(){
-  const b=getState().bowProfile; pendingBowPhoto=null;
+  const b=getState().bowProfile; pendingBowPhotos=[];
   openModal(`<div class="close-row"><div><div class="kicker">BOW PROFILE</div><h2>Your hunting setup</h2></div><button class="icon-btn" onclick="closeModal()">×</button></div>
-    <div class="field"><label>Photo of your bow</label><input type="file" accept="image/*" onchange="handleBowPhoto(this.files[0])"></div><img id="bowPhotoPreview" class="photo-preview" style="display:none" alt="Your bow"><div class="ai-status" id="bowAiStatus">${getState().settings.aiEndpoint?'Add a clear photo of the whole bow (labels visible), then scan.':'AI scan needs the secure endpoint in Settings. You can still fill this in by hand.'}</div><button class="secondary" id="bowScanBtn" style="width:100%;margin-top:8px" onclick="scanBowPhoto()">SCAN MY BOW WITH AI</button>
+    <div class="field"><label>Photos of your bow (up to 5)</label><input type="file" accept="image/*" multiple onchange="handleBowPhotos(this.files)"></div><div id="bowPhotoStrip" class="frame-strip"></div><p class="note">Best results: the whole bow from the side, a close-up of the riser stamp or limb decal, the sight, the rest, and an arrow shaft label.</p><div class="ai-status" id="bowAiStatus">${getState().settings.aiEndpoint?'Add photos, then scan. The AI fills empty fields and only replaces what it can actually read off the bow.':'AI scan needs the secure endpoint in Settings. You can still fill this in by hand.'}</div><button class="secondary" id="bowScanBtn" style="width:100%;margin-top:8px" onclick="scanBowPhoto()">SCAN MY BOW WITH AI</button>
     <div class="set-grid"><div class="field"><label>Bow</label><input id="bowName" value="${esc(b.bow||'')}"></div><div class="field"><label>Handedness</label><select id="bowHand"><option value="right" ${b.handedness==='right'?'selected':''}>Right-handed</option><option value="left" ${b.handedness==='left'?'selected':''}>Left-handed</option></select></div></div>
     <div class="set-grid"><div class="field"><label>Draw length (in)</label><input id="bowDrawLength" inputmode="decimal" value="${b.drawLength||''}"></div><div class="field"><label>Draw weight (lb)</label><input id="bowDrawWeight" inputmode="decimal" value="${b.drawWeight||''}"></div></div>
     <div class="field"><label>Arrow rest</label><input id="bowRest" value="${esc(b.rest||'')}"></div>
@@ -644,12 +644,27 @@ function openBowProfile(){
     <div class="field"><label>Broadhead</label><input id="bowBroadhead" value="${esc(b.broadhead||'')}"></div>
     <div class="field"><label>Setup notes</label><textarea id="bowNotes" rows="3">${esc(b.notes||'')}</textarea></div>
     <button class="primary" onclick="saveBowProfile()">SAVE BOW PROFILE</button>`);
-  PhotoStore.get('bow-photo').then(src=>{ if(src){ pendingBowPhoto=src; const img=$('#bowPhotoPreview'); if(img){img.src=src;img.style.display='block';} } });
+  loadStoredBowPhotos();
 }
-async function handleBowPhoto(file){ if(!file) return; pendingBowPhoto=await compressImage(file,1024,.8); const img=$('#bowPhotoPreview'); if(img){img.src=pendingBowPhoto;img.style.display='block';} $('#bowAiStatus').textContent=getState().settings.aiEndpoint?'Photo ready. Tap Scan my bow.':'Photo attached. AI scan needs the secure endpoint in Settings.'; }
-async function scanBowPhoto(){ if(!pendingBowPhoto){ alert('Add a photo of your bow first.'); return; } const d=await callAi('archery',{kind:'bow',imageDataUrl:pendingBowPhoto},$('#bowAiStatus'),'#bowScanBtn','SCANNING…'); if(!d) return; const set=(id,v)=>{ if(v&&String(v).trim()) $(id).value=String(v).trim(); }; set('#bowName',[d.brand,d.model].filter(Boolean).join(' ')); set('#bowSight',d.sight); set('#bowRest',d.rest); set('#bowArrows',d.arrows); if(['left','right'].includes(d.handedness)) $('#bowHand').value=d.handedness; const extras=[d.bow_type&&d.bow_type!=='unknown'?`${d.bow_type} bow`:'',d.stabilizer?`Stabilizer: ${d.stabilizer}`:'',d.quiver?`Quiver: ${d.quiver}`:'',d.other||''].filter(Boolean).join(' • '); const n=$('#bowNotes'); if(extras) n.value=(n.value?n.value+'\n':'')+`AI scan (${d.confidence} confidence): ${extras}`; $('#bowAiStatus').textContent=`Filled in what the AI could read (${d.confidence} confidence). ${d.notes||''} Check it, then save.`; }
+async function loadStoredBowPhotos(){ const keys=(await PhotoStore.keys()).filter(k=>String(k).startsWith('bow-photo')).sort(); const srcs=[]; for(const k of keys){ const v=await PhotoStore.get(k); if(v) srcs.push(v); } if(srcs.length&&!pendingBowPhotos.length){ pendingBowPhotos=srcs; renderBowStrip(); } }
+function renderBowStrip(){ const el=$('#bowPhotoStrip'); if(el) el.innerHTML=pendingBowPhotos.map((f,i)=>`<img src="${f}" alt="Bow photo ${i+1}">`).join('')+(pendingBowPhotos.length?`<button class="ghost" style="flex:none" onclick="pendingBowPhotos=[];renderBowStrip();">Clear</button>`:''); }
+async function handleBowPhotos(files){ const list=[...(files||[])].slice(0,5); if(!list.length) return; pendingBowPhotos=[]; for(const f of list) pendingBowPhotos.push(await compressImage(f,1024,.8)); renderBowStrip(); $('#bowAiStatus').textContent=getState().settings.aiEndpoint?`${pendingBowPhotos.length} photo${pendingBowPhotos.length===1?'':'s'} ready. Tap Scan my bow.`:'Photos attached. AI scan needs the secure endpoint in Settings.'; }
+const USELESS_VALUE=/^(none|no |not |unknown|n\/a|unclear|cannot|can't|illegible|not legible|not visible|none visible)/i;
+async function scanBowPhoto(){ if(!pendingBowPhotos.length){ alert('Add at least one photo of your bow first.'); return; }
+  const d=await callAi('archery',{kind:'bow',imageDataUrls:pendingBowPhotos},$('#bowAiStatus'),'#bowScanBtn','SCANNING…'); if(!d) return;
+  const readable=new Set(Array.isArray(d.readable_fields)?d.readable_fields:[]); const filled=[], replaced=[], kept=[];
+  const clean=v=>{ v=String(v||'').trim(); if(!v||USELESS_VALUE.test(v)) return ''; return v.length>70?v.slice(0,67).trimEnd()+'…':v; };
+  const apply=(id,label,value,readKey)=>{ const v=clean(value); if(!v) return; const el=$(id); if(!el) return; const cur=el.value.trim(); if(!cur){ el.value=v; filled.push(label); } else if(readable.has(readKey)&&cur!==v){ el.value=v; replaced.push(label); } else if(cur!==v) kept.push(`${label} (AI saw: ${v})`); };
+  const bowName=[clean(d.brand),clean(d.model)].filter(Boolean).join(' ');
+  if(bowName){ const cur=$('#bowName').value.trim(); if(!cur){ $('#bowName').value=bowName; filled.push('Bow'); } else if((readable.has('brand')||readable.has('model'))&&cur!==bowName){ $('#bowName').value=bowName; replaced.push('Bow'); } else if(cur!==bowName) kept.push(`Bow (AI saw: ${bowName})`); }
+  apply('#bowSight','Sight',d.sight,'sight'); apply('#bowRest','Arrow rest',d.rest,'rest'); apply('#bowArrows','Arrows',d.arrows,'arrows');
+  let handNote=''; if(['left','right'].includes(d.handedness)&&$('#bowHand').value!==d.handedness){ if(d.handedness_confidence==='high'){ $('#bowHand').value=d.handedness; replaced.push('Handedness'); } else handNote=` It guessed ${d.handedness}-handed (${d.handedness_confidence} confidence) but left your setting alone.`; }
+  const extras=[d.bow_type&&d.bow_type!=='unknown'?`${d.bow_type} bow`:'',clean(d.stabilizer)?`Stabilizer: ${clean(d.stabilizer)}`:'',clean(d.quiver)?`Quiver: ${clean(d.quiver)}`:'',String(d.other||'').trim()].filter(Boolean).join(' • ');
+  if(extras){ const n=$('#bowNotes'); const line=`AI scan (${d.confidence} confidence): ${extras}`; if(!n.value.includes(line)) n.value=(n.value?n.value+'\n':'')+line; }
+  const parts=[]; if(filled.length) parts.push(`Filled: ${filled.join(', ')}.`); if(replaced.length) parts.push(`Updated from legible labels: ${replaced.join(', ')}.`); if(kept.length) parts.push(`Kept yours: ${kept.join('; ')}.`); if(!filled.length&&!replaced.length) parts.push('Nothing changed in your fields.');
+  $('#bowAiStatus').textContent=`${parts.join(' ')}${handNote} ${d.confidence==='low'?'Low confidence: add close-ups of the riser stamp, limb decal, sight, and rest, then scan again.':''} ${d.notes||''} Check it, then save.`.replace(/\s+/g,' ').trim(); }
 async function saveBowProfile(){
-  if(pendingBowPhoto) await PhotoStore.set('bow-photo',pendingBowPhoto);
+  { const keys=(await PhotoStore.keys()).filter(k=>String(k).startsWith('bow-photo')); for(const k of keys) await PhotoStore.del(k); for(let i=0;i<pendingBowPhotos.length;i++) await PhotoStore.set(i===0?'bow-photo':`bow-photo-${i+1}`,pendingBowPhotos[i]); }
   STORE.set('hr30_bowProfile',{handedness:$('#bowHand').value,bow:$('#bowName').value.trim(),drawLength:+$('#bowDrawLength').value||0,drawWeight:+$('#bowDrawWeight').value||0,rest:$('#bowRest').value.trim(),sight:$('#bowSight').value.trim(),arrows:$('#bowArrows').value.trim(),spine:$('#bowSpine').value.trim(),arrowLength:$('#bowArrowLength').value.trim(),broadhead:$('#bowBroadhead').value.trim(),notes:$('#bowNotes').value.trim()});
   closeModal(); renderToday();
 }

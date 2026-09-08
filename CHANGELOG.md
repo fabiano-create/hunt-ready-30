@@ -1,3 +1,11 @@
+# HUNT READY 30 — Full Build 4.8.0
+
+## Bow scan, reworked
+- Scan from **up to five photos** at once: whole bow, riser stamp or limb decal, sight, rest, arrow shaft. All photos are kept with the profile.
+- The AI now fills empty fields, and only replaces a value you already entered when it actually read a name off a label. Descriptions of parts it couldn't name go to Setup notes, never into the fields.
+- Filler like "none visible" or "unknown" is never written. Handedness only changes when the AI is highly confident; otherwise it tells you what it guessed and leaves your setting alone.
+- After a scan, the status line lists exactly what was filled, what was updated, and what was kept.
+
 # HUNT READY 30 — Full Build 4.7.2
 
 ## Fixed
