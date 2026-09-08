@@ -144,7 +144,7 @@ export default async function handler(req, res) {
   }
 
   const client = creds.mode === 'gateway'
-    ? new Anthropic({ apiKey: creds.key, baseURL: GATEWAY_BASE_URL })
+    ? new Anthropic({ apiKey: creds.key, baseURL: GATEWAY_BASE_URL, maxRetries: 0 }) // free-tier 429s are not transient; retrying only burns the allowance
     : new Anthropic({ apiKey: creds.key });
 
   // Models to try in order. Through AI Gateway, the free tier does not include premium models,
