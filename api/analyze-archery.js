@@ -87,5 +87,6 @@ export default async function handler(req, res) {
 
   const r = await runVision({ creds, system: SYSTEMS[kind], schema, content, maxTokens, effort });
   if (!r.ok) return res.status(r.status).json(r.body);
-  return res.status(200).json({ kind, ...r.data, model: r.model, requested: creds.model, via: r.via });
+  // note: the bow schema has its own `model` field, so the AI model goes under `ai_model`
+  return res.status(200).json({ kind, ...r.data, ai_model: r.model, requested: creds.model, via: r.via });
 }

@@ -1,7 +1,6 @@
 {
   "functions": {
-    "api/analyze-meal.js": {
-      "maxDuration": 30
-    }
+    "api/analyze-meal.js": { "maxDuration": 60 },
+    "api/analyze-archery.js": { "maxDuration": 90 }
   }
 }
