@@ -1,3 +1,17 @@
+# HUNT READY 30 — Full Build 4.0.1
+
+## Fixed
+- AI meal-photo analysis now shows the real reason a scan failed (for example "OpenAI API credits are exhausted", "rate-limited", "origin not allowed", or a missing server variable) instead of only an HTTP status code.
+- AI Analyze button is disabled and shows "Analyzing…" while a request is in flight, so it cannot be double-tapped.
+- Network / CORS failures now explain what to check (connection, endpoint URL, ALLOWED_ORIGINS).
+
+## Backend (api/analyze-meal.js)
+- Error responses now include a `code` field from the AI provider.
+- Non-JSON provider responses and non-JSON model output return clear 502 errors instead of crashing.
+
+## Housekeeping
+- Service worker cache key bumped so installed PWAs pick up this version.
+
 # HUNT READY 30 — Full Build 4.0.0
 
 ## Added

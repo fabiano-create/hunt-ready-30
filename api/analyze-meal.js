@@ -48,9 +48,16 @@ Do not claim the estimate is exact. If the image is ambiguous, say so in notes.`
       })
     });
 
-    const data = await apiResponse.json();
+    let data;
+    try {
+      data = await apiResponse.json();
+    } catch {
+      return res.status(502).json({ error: `AI provider returned a non-JSON response (HTTP ${apiResponse.status}).`, code: 'bad_upstream_response' });
+    }
     if (!apiResponse.ok) {
-      return res.status(apiResponse.status).json({ error: data?.error?.message || 'AI request failed.' });
+      const message = data?.error?.message || 'AI request failed.';
+      const code = data?.error?.code || data?.error?.type || `http_${apiResponse.status}`;
+      return res.status(apiResponse.status).json({ error: message, code });
     }
 
     let text = data.output_text;
@@ -68,7 +75,12 @@ Do not claim the estimate is exact. If the image is ambiguous, say so in notes.`
     if (!text) return res.status(502).json({ error: 'No text returned by AI.' });
 
     const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '').trim();
-    const parsed = JSON.parse(cleaned);
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      return res.status(502).json({ error: 'AI returned text that was not valid JSON. Try the photo again.', code: 'bad_ai_json' });
+    }
     return res.status(200).json({
       name: String(parsed.name || 'Meal'),
       calories: Number(parsed.calories || 0),
