@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 4.7.1
+
+## Fixed
+- Form check on iPhone: frame extraction hung at "Pulling frames…" because iOS won't decode an offscreen video until it plays. The extractor now attaches the video hidden in the page, primes it with a muted play/pause, shows progress (1 of 6…), and gives a clear error instead of hanging. Tapping Review while frames are still loading now says so instead of "Pick a video first."
+- Target, bow, and meal photos: the file picker now offers Photo Library and Files as well as the camera (previously camera only).
+
 # HUNT READY 30 — Full Build 4.7.0
 
 ## Archery Lab (replaces the Archery Log)
