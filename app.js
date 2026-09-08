@@ -1,4 +1,4 @@
-const APP_VERSION = "4.1.1-full";
+const APP_VERSION = "4.2.0-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -384,7 +384,10 @@ function currentStreak(){
 function todaysScripture(){ const d=new Date(); const start=new Date(d.getFullYear(),0,0); const day=Math.floor((d-start)/86400000); return SCRIPTURES[day%SCRIPTURES.length]; }
 function scenicHero(){ return `<svg class="hero-scene" viewBox="0 0 900 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#294a39"/><stop offset=".55" stop-color="#182d22"/><stop offset="1" stop-color="#0b1710"/></linearGradient><linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#315d61"/><stop offset="1" stop-color="#122c31"/></linearGradient></defs><rect width="900" height="420" fill="url(#sky)"/><circle cx="700" cy="95" r="42" fill="#c9a75b" opacity=".65"/><path d="M0 230 L150 105 L270 210 L390 70 L560 230 L690 125 L900 245 L900 420 L0 420Z" fill="#17301f"/><path d="M0 258 L150 156 L270 236 L390 117 L560 263 L690 175 L900 270 L900 420 L0 420Z" fill="#0d2015"/><path d="M0 287 C190 260 310 315 450 284 C620 245 740 268 900 292 L900 420 L0 420Z" fill="url(#water)" opacity=".9"/><path d="M0 306 C180 288 330 328 450 304 C610 274 750 300 900 312" fill="none" stroke="#82a7a6" stroke-opacity=".25" stroke-width="3"/><g opacity=".84" transform="translate(545 146)"><rect x="18" y="0" width="7" height="54" rx="2" fill="#d8c384"/><rect x="0" y="17" width="43" height="7" rx="2" fill="#d8c384"/></g><g transform="translate(92 178)" fill="none" stroke="#d7c27e" stroke-width="4" opacity=".45"><path d="M13 63 C-3 36 1 5 28 0 C48 22 46 50 26 67"/><path d="M26 0 C36 20 34 46 26 67"/><path d="M23 18 L72 46"/><path d="M64 39 L75 47 L64 51"/></g></svg><div class="hero-overlay"></div>`; }
 
-function tab(name){
+let currentTab = 'today';
+function tab(name, push=true){
+  if(push && name!==currentTab) navPush({kind:'tab', from:currentTab});
+  currentTab = name;
   $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   if(name==='today') renderToday();
   if(name==='train') renderTrain();
@@ -428,8 +431,8 @@ function learnCards(query=''){ const q=query.trim().toLowerCase(); const names=L
 function filterLearn(v){ $('#learnList').innerHTML=learnCards(v); }
 function guideFor(name){ return EXERCISE_GUIDES[name]||{subtitle:"Quick coaching notes",steps:["Move slowly and with control.","Use a load that keeps form clean."],cues:["Neutral spine.","Steady breathing."],mistakes:["Going too heavy too soon."],why:"Master the pattern first and the load second."}; }
 function renderBulletList(items){ return `<ul class="guide-list">${items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
-function showExerciseGuide(name,source){ const g=guideFor(name),demo=DEMO_LINKS[name],fromWorkout=source==='workout'||(!!active&&source!=='learn'); openModal(`<div class="close-row"><div><div class="kicker">EXERCISE GUIDE</div><h2>${esc(name)}</h2></div><button class="icon-btn" onclick="${fromWorkout?'returnToWorkout()':'closeModal()'}">${fromWorkout?'‹':'×'}</button></div><p class="sub">${esc(g.subtitle||'')}</p>${demo?.url?`<a class="demo-button" href="${demo.url}" target="_blank" rel="noopener">▶ ${esc(demo.label)}</a>`:''}<div class="form-visual">${motionVisual(name)}</div>${g.steps?`<div class="card flat"><div class="kicker">HOW TO DO IT</div>${renderBulletList(g.steps)}</div>`:''}${g.cues?`<div class="card flat"><div class="kicker">COACHING CUES</div>${renderBulletList(g.cues)}</div>`:''}${g.mistakes?`<div class="card flat"><div class="kicker">COMMON MISTAKES</div>${renderBulletList(g.mistakes)}</div>`:''}${g.why?`<div class="card flat"><div class="kicker">WHY IT'S HERE</div><p class="sub">${esc(g.why)}</p></div>`:''}`); }
-function returnToWorkout(){ if(active) rerenderWorkout(); else closeModal(); }
+function showExerciseGuide(name,source){ const g=guideFor(name),demo=DEMO_LINKS[name],fromWorkout=source==='workout'||(!!active&&source!=='learn'); if(fromWorkout&&modalIsOpen()) navPush({kind:'guide'}); openModal(`<div class="close-row"><div><div class="kicker">EXERCISE GUIDE</div><h2>${esc(name)}</h2></div><button class="icon-btn" onclick="${fromWorkout?'returnToWorkout()':'closeModal()'}">${fromWorkout?'‹':'×'}</button></div><p class="sub">${esc(g.subtitle||'')}</p>${demo?.url?`<a class="demo-button" href="${demo.url}" target="_blank" rel="noopener">▶ ${esc(demo.label)}</a>`:''}<div class="form-visual">${motionVisual(name)}</div>${g.steps?`<div class="card flat"><div class="kicker">HOW TO DO IT</div>${renderBulletList(g.steps)}</div>`:''}${g.cues?`<div class="card flat"><div class="kicker">COACHING CUES</div>${renderBulletList(g.cues)}</div>`:''}${g.mistakes?`<div class="card flat"><div class="kicker">COMMON MISTAKES</div>${renderBulletList(g.mistakes)}</div>`:''}${g.why?`<div class="card flat"><div class="kicker">WHY IT'S HERE</div><p class="sub">${esc(g.why)}</p></div>`:''}`); }
+function returnToWorkout(){ if(active){ navConsume('guide'); rerenderWorkout(); } else closeModal(); }
 function motionVisual(name){ const visual=['Hip Hinge','DB Romanian Deadlift','Goblet Squat','Reverse Lunge','Step-Up','Farmer Carry','Suitcase Carry','Plank','Push-Ups']; if(!visual.includes(name)) return `<div class="visual-placeholder"><span>FORM</span><strong>${esc(name)}</strong><small>Use the steps + cues below, then open the video/resource when available.</small></div>`; const hinge=['Hip Hinge','DB Romanian Deadlift'].includes(name); return `<div class="two-position"><div class="pose"><span>${hinge?'START':'POSITION 1'}</span><div class="stick-person upright"><i class="head"></i><i class="torso"></i><i class="arm a1"></i><i class="arm a2"></i><i class="leg l1"></i><i class="leg l2"></i></div></div><div class="arrow">→</div><div class="pose"><span>${hinge?'HINGE':'POSITION 2'}</span><div class="stick-person ${hinge?'hinge':'upright'}"><i class="head"></i><i class="torso"></i><i class="arm a1"></i><i class="arm a2"></i><i class="leg l1"></i><i class="leg l2"></i></div></div></div>`; }
 
 function workingWeightExercises(){ const names=[]; Object.values(PROGRAM).flatMap(w=>w.exercises).forEach(e=>{ if(['strength','carry'].includes(e.type)&&!names.includes(e.name)) names.push(e.name); }); return names; }
@@ -524,15 +527,43 @@ function completeSet(){ const prev=snapshot(),e=currentEx(),log={name:e.name,set
 function startRest(seconds){ active.mode='rest';let left=seconds;$('#modal').innerHTML=`<div class="close-row"><div><div class="kicker">REST</div><h2>Recover, then go.</h2></div><button class="icon-btn" onclick="skipRest()">→</button></div><div class="rest-box"><div class="timer" id="restTimer">${fmt(left)}</div><p class="sub">Next: ${active.index<active.workout.exercises.length?esc(currentEx().name):'Finish'}</p></div><div class="action-row"><button class="secondary" onclick="previousStep()">BACK</button><button class="primary" onclick="skipRest()">SKIP REST</button></div>`;clearInterval(restTimer);restTimer=setInterval(()=>{left--;const el=$('#restTimer');if(el)el.textContent=fmt(Math.max(0,left));if(left<=0)skipRest();},1000); }
 function skipRest(){ clearInterval(restTimer);active.mode='workout';rerenderWorkout(); }
 function rerenderWorkout(){ if(active)$('#modal').innerHTML=workoutModal(); }
-function previousStep(){ clearInterval(restTimer);if(active.historyStack.length){restoreSnapshot(active.historyStack.pop());rerenderWorkout();}else if(confirm('Exit this workout? Your unsaved session will be discarded.')){clearInterval(workoutTimer);closeModal();active=null;} }
+function previousStep(){ clearInterval(restTimer);if(active.historyStack.length){restoreSnapshot(active.historyStack.pop());rerenderWorkout();}else if(confirm('Exit this workout? Your unsaved session will be discarded.')){clearInterval(workoutTimer);active=null;closeModal();} }
 function updateWorkingWeightsFromLogs(logs){ const w=getState().workingWeights;logs.forEach(l=>{if(['strength','carry'].includes(l.type)&&l.weight)w[l.name]=l.weight;});STORE.set('hr30_workingWeights',w); }
-function finishWorkout(early){ if(!active)return;clearInterval(workoutTimer);clearInterval(restTimer);const duration=Math.max(1,Math.round((Date.now()-active.started)/60000)),summary=progressionSummary(active.logs),entry={id:uid(),date:new Date().toISOString(),day:active.day,title:active.workout.title,duration,logs:active.logs,summary};saveHistory(entry);updateWorkingWeightsFromLogs(active.logs);closeModal();active=null;tab('today');setTimeout(()=>alert(early?`Workout logged at ${duration} min.`:`Workout complete. ${summary||'Nice work.'}`),100); }
+function finishWorkout(early){ if(!active)return;clearInterval(workoutTimer);clearInterval(restTimer);const duration=Math.max(1,Math.round((Date.now()-active.started)/60000)),summary=progressionSummary(active.logs),entry={id:uid(),date:new Date().toISOString(),day:active.day,title:active.workout.title,duration,logs:active.logs,summary};saveHistory(entry);updateWorkingWeightsFromLogs(active.logs);active=null;closeModal();tab('today');setTimeout(()=>alert(early?`Workout logged at ${duration} min.`:`Workout complete. ${summary||'Nice work.'}`),100); }
 function progressionSummary(logs){ const groups={};logs.forEach(l=>{if(l.type==='strength'&&l.weight&&l.reps)(groups[l.name]??=[]).push(l)});const recs=[];Object.entries(groups).forEach(([name,arr])=>{const e=Object.values(PROGRAM).flatMap(w=>w.exercises).find(x=>x.name===name);if(e?.max&&arr.length>=e.sets&&arr.every(x=>x.reps>=e.max))recs.push(`${name}: consider +2.5–5 lb next time`);});return recs.join(' • '); }
 function quickLogRecovery(){ saveHistory({id:uid(),date:new Date().toISOString(),day:'Sunday',title:'Recovery',duration:0,logs:[],summary:'Recovery day logged.'});renderToday(); }
 
-function openModal(html){ $('#modal').innerHTML=html;$('#modalBackdrop').classList.remove('hidden');$('#modalBackdrop').setAttribute('aria-hidden','false'); }
-function closeModal(){ clearInterval(restTimer);$('#modalBackdrop').classList.add('hidden');$('#modalBackdrop').setAttribute('aria-hidden','true'); }
+function modalIsOpen(){ return !$('#modalBackdrop').classList.contains('hidden'); }
+function openModal(html){ const wasOpen=modalIsOpen(); $('#modal').innerHTML=html; $('#modalBackdrop').classList.remove('hidden'); $('#modalBackdrop').setAttribute('aria-hidden','false'); if(!wasOpen){ if(NAV.pendingModalCloses>0){ NAV.pendingModalCloses--; NAV.stack.push({kind:'modal'}); } else navPush({kind:'modal'}); } }
+function hideModal(){ clearInterval(restTimer); $('#modalBackdrop').classList.add('hidden'); $('#modalBackdrop').setAttribute('aria-hidden','true'); }
+function closeModal(){ hideModal(); navConsumeModal(); }
 $('#modalBackdrop').addEventListener('click',e=>{ if(e.target.id==='modalBackdrop'&&!active)closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modalIsOpen()&&!active) closeModal(); });
+
+// ---- Browser-history integration (back button / back gesture) ----
+// Every modal, nested exercise guide, and tab change pushes a history entry, so "back"
+// closes or steps back inside the app instead of leaving it.
+const NAV = { stack: [], pendingPops: 0, pendingModalCloses: 0, closeTimer: null };
+function navPush(entry){ NAV.stack.push(entry); try{ history.pushState({hr30:entry.kind}, ''); }catch{} }
+function navConsume(kind){ const top=NAV.stack[NAV.stack.length-1]; if(!top||top.kind!==kind) return false; NAV.stack.pop(); NAV.pendingPops++; try{ history.back(); }catch{} return true; }
+// Programmatic close: pop our entries now, but step the browser history back one tick later so a modal
+// that opens in the same instant (e.g. "close day view, start workout") can reuse the entry instead of racing it.
+function navConsumeModal(){ let n=0; while(NAV.stack.length&&['guide','modal'].includes(NAV.stack[NAV.stack.length-1].kind)){ NAV.stack.pop(); n++; } if(!n) return; NAV.pendingModalCloses+=n; clearTimeout(NAV.closeTimer); NAV.closeTimer=setTimeout(()=>{ const k=NAV.pendingModalCloses; NAV.pendingModalCloses=0; if(k>0){ NAV.pendingPops++; try{ history.go(-k); }catch{} } },0); }
+function workoutBack(){
+  clearInterval(restTimer);
+  if(active.historyStack.length){ restoreSnapshot(active.historyStack.pop()); rerenderWorkout(); navPush({kind:'modal'}); return; }
+  if(confirm('Exit this workout? Your unsaved session will be discarded.')){ clearInterval(workoutTimer); hideModal(); active=null; }
+  else navPush({kind:'modal'});
+}
+window.addEventListener('popstate',()=>{
+  if(NAV.pendingPops>0){ NAV.pendingPops--; return; }
+  const top=NAV.stack.pop();
+  if(!top) return;
+  if(top.kind==='guide'){ if(active) rerenderWorkout(); else hideModal(); return; }
+  if(top.kind==='modal'){ if(active) workoutBack(); else hideModal(); return; }
+  if(top.kind==='tab'){ tab(top.from,false); return; }
+});
+try{ history.replaceState({hr30:'root'}, ''); }catch{}
 
 $('#settingsBtn').addEventListener('click',openSettings);
 function openSettings(){ const s=getState();openModal(`<div class="close-row"><div><div class="kicker">SETTINGS</div><h2>HUNT READY 30</h2><p class="note">Version ${APP_VERSION}</p></div><button class="icon-btn" onclick="closeModal()">×</button></div><div class="settings-grid"><div class="setting"><label>Program start date</label><input id="startDate" type="date" value="${s.startDate}"></div><div class="setting"><label>Starting ruck load (lb)</label><input id="ruckLoad" inputmode="numeric" value="${s.preferredRuck}"></div><div class="setting"><label>Secure AI nutrition endpoint (optional)</label><input id="aiEndpoint" type="url" value="${esc(s.settings.aiEndpoint||'')}" placeholder="https://your-secure-endpoint.example/analyze"></div></div><div class="notice" style="margin-top:12px">For meal-photo AI, use a secure server endpoint. Do not paste a private AI API key into this GitHub Pages app.</div><button class="primary" onclick="saveSettings()">SAVE SETTINGS</button><div class="divider"></div><div class="kicker">DATA</div><button class="secondary" style="width:100%;margin-top:10px" onclick="exportAllData()">EXPORT COMPLETE BACKUP</button><button class="secondary" style="width:100%;margin-top:10px" onclick="$('#importFileInput').click()">IMPORT BACKUP</button><button class="secondary danger" style="width:100%;margin-top:10px" onclick="resetAppData()">RESET APP DATA</button>`); }

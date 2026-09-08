@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 4.2.0
+
+## Fixed
+- Back button / back gesture now works inside the app. Going back closes an open panel, returns to the previous tab, steps back one set inside an active workout (asking before exiting), and returns from an exercise guide to the workout, instead of leaving the app.
+- Escape key closes panels on desktop.
+
 # HUNT READY 30 — Full Build 4.1.1
 
 ## Changed
