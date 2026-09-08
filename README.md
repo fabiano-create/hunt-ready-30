@@ -64,18 +64,20 @@ Replace these files when publishing a new version:
 The `icons` folder only needs replacing when the app icon changes.
 
 
-## AI backend on Vercel (Claude)
+## AI backend on Vercel (Claude via Vercel AI Gateway)
 
-`api/analyze-meal.js` is a Vercel serverless function that sends the meal photo to Claude (Anthropic API) using the official `@anthropic-ai/sdk` and structured JSON output, then returns the nutrition estimate to the app. The same GitHub repository deploys to both GitHub Pages (the app) and Vercel (the backend).
+`api/analyze-meal.js` is a Vercel serverless function that sends the meal photo to Claude using the official `@anthropic-ai/sdk` with structured JSON output. By default it routes through **Vercel AI Gateway**, so the only credential needed is an AI Gateway key created inside the Vercel dashboard (AI Gateway → API Keys). The gateway includes $5/month of free credits once a credit card is on file and charges provider list price with no markup after that.
 
 Required Vercel environment variables:
 
-- `ANTHROPIC_API_KEY` — server-side only (Secret). Create it at console.anthropic.com → API Keys. The Anthropic API is billed separately from a Claude Max subscription; add a small prepaid balance under Settings → Billing.
+- `AI_GATEWAY_API_KEY` — Secret. Your Vercel AI Gateway key (starts with `vck_`). If the same key is stored as `ANTHROPIC_API_KEY` instead, it is detected automatically.
 - `ALLOWED_ORIGINS` — comma-separated allowed browser origins, for example `https://fabiano-create.github.io`
-- `ANTHROPIC_MODEL` — optional; defaults to `claude-opus-5`
+- `ANTHROPIC_MODEL` — optional; defaults to `anthropic/claude-opus-5`
+
+Alternative: set `ANTHROPIC_API_KEY` to a direct Anthropic key (`sk-ant-…`) from console.anthropic.com and the function calls Anthropic directly instead.
 
 After adding or changing variables, redeploy the latest production deployment so the function picks them up.
 
 The endpoint URL (`https://hunt-ready-30.vercel.app/api/analyze-meal`) goes into HUNT READY 30 → Settings → Secure AI nutrition endpoint.
 
-Error responses are JSON `{ "error": "...", "code": "..." }` and the app shows the message directly. HTTP 402 means the Anthropic account has no API credits.
+Error responses are JSON `{ "error": "...", "code": "..." }` and the app shows the message directly. HTTP 402 means the connected AI account has no credits.

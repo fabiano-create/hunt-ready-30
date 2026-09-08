@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 4.1.1
+
+## Changed
+- Meal-photo analysis now routes to Claude through **Vercel AI Gateway** by default (`anthropic/claude-opus-5`), so the only credential needed is a key created in the Vercel dashboard. A direct Anthropic key still works.
+- Credential detection: `AI_GATEWAY_API_KEY`, then `ANTHROPIC_API_KEY` (gateway keys starting with `vck_` are recognized automatically), then Vercel's OIDC token.
+- Credit / key error messages now say exactly where to fix the problem for the credential in use.
+
 # HUNT READY 30 — Full Build 4.1.0
 
 ## Changed

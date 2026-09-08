@@ -4,7 +4,31 @@ import Anthropic from '@anthropic-ai/sdk';
 // The browser POSTs { imageDataUrl } and receives { name, calories, protein, carbs, fat, fiber, notes }.
 // The API key lives only in Vercel environment variables, never in the static app.
 
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-opus-5';
+// Credentials, in order of preference:
+//   1. AI_GATEWAY_API_KEY  — a Vercel AI Gateway key (starts with "vck_"); routes to Claude through the gateway
+//   2. ANTHROPIC_API_KEY   — either a gateway key pasted under this name (auto-detected) or a direct Anthropic key
+//   3. VERCEL_OIDC_TOKEN   — provided automatically by Vercel when OIDC is enabled for the project
+const GATEWAY_BASE_URL = 'https://ai-gateway.vercel.sh';
+
+function resolveCredentials() {
+  const gatewayKey = (process.env.AI_GATEWAY_API_KEY || '').trim();
+  const anthropicKey = (process.env.ANTHROPIC_API_KEY || '').trim();
+  const oidcToken = (process.env.VERCEL_OIDC_TOKEN || '').trim();
+  const modelOverride = (process.env.ANTHROPIC_MODEL || '').trim();
+
+  let mode = '', key = '';
+  if (gatewayKey) { mode = 'gateway'; key = gatewayKey; }
+  else if (anthropicKey.startsWith('vck_')) { mode = 'gateway'; key = anthropicKey; }
+  else if (anthropicKey) { mode = 'direct'; key = anthropicKey; }
+  else if (oidcToken) { mode = 'gateway'; key = oidcToken; }
+  if (!mode) return null;
+
+  let model = modelOverride || 'claude-opus-5';
+  if (mode === 'gateway' && !model.includes('/')) model = `anthropic/${model}`;
+  if (mode === 'direct' && model.startsWith('anthropic/')) model = model.slice('anthropic/'.length);
+  return { mode, key, model };
+}
+
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
 const MEAL_SCHEMA = {
@@ -46,20 +70,33 @@ function providerDetails(error) {
   };
 }
 
-function mapProviderError(error) {
+function mapProviderError(error, creds) {
   const { message, type } = providerDetails(error);
   const lower = message.toLowerCase();
-  if (lower.includes('credit') || lower.includes('billing')) {
-    return { status: 402, error: message, code: 'insufficient_credits' };
+  const gateway = creds.mode === 'gateway';
+  if (Number(error?.status) === 402 || lower.includes('credit') || lower.includes('billing') || lower.includes('budget')) {
+    return {
+      status: 402,
+      error: gateway
+        ? 'AI Gateway credits are used up. In Vercel, open AI Gateway → Budgets & Spend and add a credit card (this unlocks $5/month of free credits) or buy credits, then try again.'
+        : 'Anthropic API credits are exhausted (or billing is not set up). Add prepaid credits at console.anthropic.com → Settings → Billing, wait a minute or two, then try again.',
+      code: 'insufficient_credits'
+    };
   }
   if (error instanceof Anthropic.AuthenticationError) {
-    return { status: 401, error: 'Anthropic rejected the server API key. Check ANTHROPIC_API_KEY in Vercel → Settings → Environment Variables, then redeploy.', code: 'authentication_error' };
+    return {
+      status: 401,
+      error: gateway
+        ? 'Vercel AI Gateway rejected the key. In Vercel → Settings → Environment Variables, check AI_GATEWAY_API_KEY (it should start with vck_), then redeploy.'
+        : 'Anthropic rejected the server API key. Check ANTHROPIC_API_KEY in Vercel → Settings → Environment Variables, then redeploy.',
+      code: 'authentication_error'
+    };
   }
   if (error instanceof Anthropic.PermissionDeniedError) {
     return { status: 403, error: message, code: type || 'permission_error' };
   }
   if (error instanceof Anthropic.NotFoundError) {
-    return { status: 404, error: `Anthropic could not find the requested resource (model "${MODEL}"?). ${message}`, code: type || 'not_found_error' };
+    return { status: 404, error: `The AI provider could not find the requested model "${creds.model}". ${message}`, code: type || 'not_found_error' };
   }
   if (error instanceof Anthropic.RateLimitError) {
     return { status: 429, error: 'Anthropic rate limit reached. Wait a moment and try again.', code: type || 'rate_limit_error' };
@@ -81,8 +118,9 @@ export default async function handler(req, res) {
   const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
   const origin = req.headers.origin || '';
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured.', code: 'missing_api_key' });
+  const creds = resolveCredentials();
+  if (!creds) {
+    return res.status(500).json({ error: 'AI_GATEWAY_API_KEY is not configured. Add your Vercel AI Gateway key as an environment variable and redeploy.', code: 'missing_api_key' });
   }
   if (!allowed.length) {
     return res.status(500).json({ error: 'ALLOWED_ORIGINS is not configured.', code: 'missing_allowed_origins' });
@@ -103,11 +141,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'A JPEG, PNG, GIF, or WebP meal image data URL is required.', code: 'bad_image' });
   }
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = creds.mode === 'gateway'
+    ? new Anthropic({ apiKey: creds.key, baseURL: GATEWAY_BASE_URL })
+    : new Anthropic({ apiKey: creds.key });
 
   try {
     const response = await client.messages.create({
-      model: MODEL,
+      model: creds.model,
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       output_config: {
@@ -148,10 +188,11 @@ export default async function handler(req, res) {
       fat: Math.round(Number(parsed.fat) || 0),
       fiber: Math.round(Number(parsed.fiber) || 0),
       notes: String(parsed.notes || 'AI estimate. Review before saving.'),
-      model: response.model
+      model: response.model,
+      via: creds.mode
     });
   } catch (error) {
-    const mapped = mapProviderError(error);
+    const mapped = mapProviderError(error, creds);
     return res.status(mapped.status).json({ error: mapped.error, code: mapped.code });
   }
 }

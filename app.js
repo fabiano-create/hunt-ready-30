@@ -1,4 +1,4 @@
-const APP_VERSION = "4.1.0-full";
+const APP_VERSION = "4.1.1-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -470,9 +470,9 @@ function showMealPreview(src){ const img=$('#mealPhotoPreview'); if(img){img.src
 function compressImage(file,maxW=640,quality=.75){ return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=reject;r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width),c=document.createElement('canvas');c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality));};img.onerror=reject;img.src=r.result;};r.readAsDataURL(file);}); }
 function friendlyAiError(status,body){
   const raw=String(body?.error||body?.message||'').trim(),lower=raw.toLowerCase(),code=String(body?.code||'');
-  if(status===402||code==='insufficient_credits'||lower.includes('credit')||lower.includes('billing')) return 'Anthropic API credits are exhausted (or billing is not set up). Add prepaid credits at console.anthropic.com → Settings → Billing, wait a minute or two, then try again. Note: a Claude Max subscription does not include API credits.';
+  if(status===402||code==='insufficient_credits'||lower.includes('credit')||lower.includes('billing')) return raw||'AI credits are used up. Add credits to the AI account connected to the server, then try again.';
   if(status===429) return 'The AI service is rate-limited right now. Wait a moment and try again.';
-  if(status===401) return 'The server\'s ANTHROPIC_API_KEY was rejected. Check the key in Vercel → Settings → Environment Variables, then redeploy.';
+  if(status===401) return raw||'The server\'s AI key was rejected. Check the key in Vercel → Settings → Environment Variables, then redeploy.';
   if(status===403&&lower.includes('origin')) return 'This app\'s web address is not in the server\'s ALLOWED_ORIGINS. Open HUNT READY 30 from your GitHub Pages / Home Screen version, or add this address to ALLOWED_ORIGINS in Vercel.';
   if(status===403) return raw?`Server rejected the request: ${raw}`:'The server rejected the request.';
   if(status===404) return raw||'AI endpoint not found. Check the endpoint URL in Settings.';
