@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 4.7.2
+
+## Fixed
+- AI text no longer shows codes like `\u2014` where dashes belong. The server decodes double-escaped characters in the model's answer, and the app decodes them on display, so reviews saved earlier are fixed too.
+- After a form review is saved, the Past Reviews list updates immediately instead of still saying "No form reviews yet."
+
 # HUNT READY 30 — Full Build 4.7.1
 
 ## Fixed
