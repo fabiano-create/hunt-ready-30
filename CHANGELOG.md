@@ -1,3 +1,12 @@
+# HUNT READY 30 — Full Build 4.6.0
+
+## Added
+- Hunt countdown. Add one or more opening days (Today → Hunt Dates). The next hunt drives the plan, which now counts back from it: Base (60+ days out, loads held at week 1–2), Build (59–25 days), Peak (24–11 days), Taper (last 10 days).
+- Countdown card on Today: days left, phase, week within the phase, progress bar, and a Hunt Prep shortcut during the taper.
+- Taper automatically trims workouts: one fewer strength set, shorter carries, rucks capped at 20 minutes, circuit at 15.
+- Train tab shows the phase timeline for the upcoming hunt instead of the generic 8-week progression.
+- Without a hunt date, everything behaves as before.
+
 # HUNT READY 30 — Full Build 4.5.0
 
 ## Added

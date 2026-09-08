@@ -1,4 +1,4 @@
-const APP_VERSION = "4.5.0-full";
+const APP_VERSION = "4.6.0-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -341,6 +341,7 @@ function migrateLegacy(){
     const items=[]; DEFAULT_CHECKLIST.forEach(g=>g.items.forEach(label=>items.push({id:uid(),category:g.category,label,done:false})));
     STORE.set('hr30_checklist',items);
   }
+  if(!localStorage.hr30_hunts) STORE.set('hr30_hunts',[]);
   if(!localStorage.hr30_settings) STORE.set('hr30_settings',{aiEndpoint:'',restSound:true,restVibrate:true});
   { const st=STORE.get('hr30_settings',{}); if(st.restSound===undefined) st.restSound=true; if(st.restVibrate===undefined) st.restVibrate=true; STORE.set('hr30_settings',st); }
   if(!localStorage.hr30_bowProfile) STORE.set('hr30_bowProfile',{
@@ -361,6 +362,7 @@ function getState(){
     archery: STORE.get('hr30_archery',[]),
     checklist: STORE.get('hr30_checklist',[]),
     settings: STORE.get('hr30_settings',{aiEndpoint:''}),
+    hunts: STORE.get('hr30_hunts',[]),
     bowProfile: STORE.get('hr30_bowProfile',{}),
     preferredRuck: Number(localStorage.hr30_preferredRuck || 10)
   };
@@ -382,6 +384,66 @@ function currentStreak(){
   return streak;
 }
 function todaysScripture(){ const d=new Date(); const start=new Date(d.getFullYear(),0,0); const day=Math.floor((d-start)/86400000); return SCRIPTURES[day%SCRIPTURES.length]; }
+// ---- Hunt countdown + phase engine ----
+// With an opening day set, the plan counts back from it: Base (60+ days out) -> Build (25-59) -> Peak (11-24) -> Taper (0-10).
+const PHASES = {
+  base:  {label:'Base',  blurb:'Learn the movements, build the ruck base, shoot often. Loads stay at week 1–2 levels.'},
+  build: {label:'Build', blurb:'Add reps and small load jumps when form stays clean. Ruck weight climbs toward 20 lb.'},
+  peak:  {label:'Peak',  blurb:'Heaviest loads and ruck weight of the plan. Recover on purpose.'},
+  taper: {label:'Taper', blurb:'Lighter lifting, daily shooting, sleep, and the hunt-prep checklist. Arrive fresh.'}
+};
+function getHunts(){ return (STORE.get('hr30_hunts',[])||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))); }
+function daysUntil(dateKey){ const d=new Date(dateKey+'T00:00:00'), t=new Date(); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); }
+function nextHunt(){ const today=localDateKey(); return getHunts().find(h=>h.date>=today)||null; }
+function huntPlan(){
+  const h=nextHunt(); if(!h) return null;
+  const days=daysUntil(h.date), startKey=localStorage.hr30_startDate||localDateKey();
+  const daysFromStart=Math.max(0,-daysUntil(startKey)), totalDays=Math.max(1,daysFromStart+days);
+  let phase, programWeek, phaseWeek, phaseWeeks;
+  if(days<=10){ phase='taper'; programWeek=8; phaseWeek=1; phaseWeeks=1; }
+  else if(days<=24){ phase='peak'; phaseWeeks=2; phaseWeek=days>17?1:2; programWeek=5+phaseWeek; }
+  else if(days<=59){ phase='build'; phaseWeeks=5; phaseWeek=Math.min(5,Math.floor((59-days)/7)+1); programWeek=phaseWeek; }
+  else { phase='base'; const baseDays=totalDays-59; phaseWeeks=Math.max(1,Math.ceil(baseDays/7)); phaseWeek=Math.min(phaseWeeks,Math.floor(daysFromStart/7)+1); programWeek=phaseWeek%2?1:2; }
+  return {hunt:h, days, phase, label:PHASES[phase].label, blurb:PHASES[phase].blurb, programWeek, phaseWeek, phaseWeeks, pct:Math.min(100,Math.round(daysFromStart/totalDays*100))};
+}
+function planLabel(){ const p=huntPlan(); return p?`${p.label} • week ${p.phaseWeek} of ${p.phaseWeeks}`:`Week ${weekNumber()}`; }
+function effectiveWorkout(day){
+  const w=JSON.parse(JSON.stringify(PROGRAM[day])), p=huntPlan();
+  if(p&&p.phase==='taper'&&w.duration){
+    w.taper=true;
+    w.exercises=w.exercises.map(e=>{ const x={...e};
+      if(x.type==='strength'&&x.sets>=3) x.sets=x.sets-1;
+      if(x.type==='carry'&&x.sets>=4) x.sets=x.sets-2;
+      if(x.type==='ruck') x.minutes=Math.min(x.minutes||30,20);
+      if(x.type==='circuit') x.minutes=Math.min(x.minutes||20,15);
+      if(x.type==='timed'&&x.sets>=3) x.sets=x.sets-1;
+      return x; });
+    w.focus=w.focus+' • taper: lighter, crisp, done early';
+  }
+  return w;
+}
+function phaseTimeline(p){
+  const d=p.hunt.date; const rows=[
+    ['base', 'until 60 days out'], ['build','59 → 25 days out'], ['peak','24 → 11 days out'], ['taper','last 10 days']
+  ];
+  return `<section class="card"><div class="kicker">PLAN TO ${esc(p.hunt.name||'OPENING DAY').toUpperCase()}</div>${rows.map(([k,range])=>`<div class="phase-row ${k===p.phase?'current':''}"><div><strong>${PHASES[k].label}</strong><small>${range}</small></div><p class="note">${PHASES[k].blurb}</p></div>`).join('')}</section>`;
+}
+function countdownCard(){
+  const p=huntPlan();
+  if(!p) return `<section class="card countdown"><div class="kicker">NEXT HUNT</div><h3 style="margin:6px 0">Set your opening day</h3><p class="sub">The plan will count back from it: Base → Build → Peak → Taper, so the last week leaves you fresh.</p><button class="primary" onclick="openHunts()">ADD A HUNT DATE</button></section>`;
+  const items=getState().checklist, undone=items.filter(i=>!i.done).length;
+  return `<section class="card countdown phase-${p.phase}"><div class="cd-top"><div><div class="kicker">NEXT HUNT</div><h2>${p.days===0?'Today':p.days===1?'Tomorrow':`${p.days} days`}</h2><p class="sub">${esc(p.hunt.name||'Opening day')} • ${formatDate(new Date(p.hunt.date+'T00:00:00'))}</p></div><div class="phase-badge">${p.label}</div></div><p class="note">${p.blurb}</p><div class="progress-bar"><span style="width:${p.pct}%"></span></div><div class="cd-meta"><small>${p.label} week ${p.phaseWeek} of ${p.phaseWeeks} • program week ${p.programWeek}</small><button class="ghost" onclick="openHunts()">Manage hunts →</button></div>${p.phase==='taper'&&undone?`<button class="secondary" style="width:100%;margin-top:10px" onclick="openHuntPrep()">HUNT PREP: ${undone} ITEM${undone===1?'':'S'} LEFT →</button>`:''}</section>`;
+}
+function openHunts(){
+  const hunts=getHunts(), today=localDateKey();
+  openModal(`<div class="close-row"><div><div class="kicker">HUNTS</div><h2>Opening days</h2><p class="note">The next upcoming hunt drives the plan.</p></div><button class="icon-btn" onclick="closeModal()">×</button></div>
+    <div class="field"><label>Hunt name</label><input id="huntName" placeholder="e.g. Rifle opener, Late-season bow"></div>
+    <div class="set-grid"><div class="field"><label>Opening day</label><input id="huntDate" type="date" min="${today}"></div><div class="field"><label>Notes (optional)</label><input id="huntNotes" placeholder="Unit, property, who's going"></div></div>
+    <button class="primary" onclick="saveHunt()">ADD HUNT</button>
+    <div class="divider"></div><div class="kicker">YOUR HUNTS</div><div class="field-list">${hunts.length?hunts.map(h=>{const past=h.date<today, d=daysUntil(h.date);return `<div class="archery-item ${past?'past':''}"><div class="top"><strong>${esc(h.name||'Hunt')}</strong><small>${formatDate(new Date(h.date+'T00:00:00'))}</small></div><p class="note">${past?'Done':d===0?'Today':`${d} days out`}${h.notes?` • ${esc(h.notes)}`:''}</p><button class="ghost" onclick="deleteHunt('${h.id}')">Remove</button></div>`;}).join(''):'<div class="empty">No hunts yet.</div>'}</div>`);
+}
+function saveHunt(){ const name=$('#huntName').value.trim(), date=$('#huntDate').value; if(!date){alert('Pick an opening day.');return;} const hunts=getHunts(); hunts.push({id:uid(),name:name||'Hunt',date,notes:$('#huntNotes').value.trim(),createdAt:new Date().toISOString()}); STORE.set('hr30_hunts',hunts); openHunts(); }
+function deleteHunt(id){ if(!confirm('Remove this hunt?')) return; STORE.set('hr30_hunts',getHunts().filter(h=>h.id!==id)); openHunts(); }
 function scenicHero(){ return `<svg class="hero-scene" viewBox="0 0 900 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#294a39"/><stop offset=".55" stop-color="#182d22"/><stop offset="1" stop-color="#0b1710"/></linearGradient><linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#315d61"/><stop offset="1" stop-color="#122c31"/></linearGradient></defs><rect width="900" height="420" fill="url(#sky)"/><circle cx="700" cy="95" r="42" fill="#c9a75b" opacity=".65"/><path d="M0 230 L150 105 L270 210 L390 70 L560 230 L690 125 L900 245 L900 420 L0 420Z" fill="#17301f"/><path d="M0 258 L150 156 L270 236 L390 117 L560 263 L690 175 L900 270 L900 420 L0 420Z" fill="#0d2015"/><path d="M0 287 C190 260 310 315 450 284 C620 245 740 268 900 292 L900 420 L0 420Z" fill="url(#water)" opacity=".9"/><path d="M0 306 C180 288 330 328 450 304 C610 274 750 300 900 312" fill="none" stroke="#82a7a6" stroke-opacity=".25" stroke-width="3"/><g opacity=".84" transform="translate(545 146)"><rect x="18" y="0" width="7" height="54" rx="2" fill="#d8c384"/><rect x="0" y="17" width="43" height="7" rx="2" fill="#d8c384"/></g><g transform="translate(92 178)" fill="none" stroke="#d7c27e" stroke-width="4" opacity=".45"><path d="M13 63 C-3 36 1 5 28 0 C48 22 46 50 26 67"/><path d="M26 0 C36 20 34 46 26 67"/><path d="M23 18 L72 46"/><path d="M64 39 L75 47 L64 51"/></g></svg><div class="hero-overlay"></div>`; }
 
 let currentTab = 'today';
@@ -402,15 +464,16 @@ function exerciseActionButtons(name){ return `<div class="mini-actions"><button 
 function exerciseList(workout){ return workout.exercises.map((e,i)=>`<div class="exercise"><div class="exercise-num">${i+1}</div><div><h4>${esc(e.name)}</h4><p>${esc(e.prescription)}</p><div class="tag-row">${e.rest?`<span class="tag">${e.rest}s rest</span>`:''}${e.notes?`<span class="tag">${esc(e.notes)}</span>`:''}</div>${exerciseActionButtons(e.name)}</div></div>`).join(''); }
 
 function renderToday(){
-  const d=dayName(),w=PROGRAM[d],s=getState(),verse=todaysScripture(),ready=s.readiness[localDateKey()];
+  const d=dayName(),w=effectiveWorkout(d),s=getState(),verse=todaysScripture(),ready=s.readiness[localDateKey()];
   const latestBody=s.bodyHistory[0]||{};
   $('#main').innerHTML=`
     <section class="card hero">${scenicHero()}<div class="hero-content"><div class="kicker">FIELD • FAITH • FITNESS</div><h2>Become harder to fatigue and more capable in the field.</h2><div class="metrics"><div class="metric"><strong>${completedThisWeek()}</strong><span>sessions this week</span></div><div class="metric"><strong>${currentStreak()}</strong><span>day training streak</span></div><div class="metric"><strong>${latestBody.weight||'—'}</strong><span>latest body weight</span></div></div></div></section>
     <section class="card scripture-card"><div class="scripture-ref">${verse.ref}</div><p class="scripture-text">“${verse.text}”</p><div class="scripture-focus">TRAIN UNDER THIS: ${verse.focus}</div></section>
+    ${countdownCard()}
     <section class="card"><div class="section-title" style="margin:0 0 12px"><h3>Readiness check</h3>${ready?`<small>${ready.score}% today</small>`:'<small>30 seconds</small>'}</div>${ready?readinessSummary(ready):readinessForm()}</section>
-    <section class="card"><div class="kicker">Week ${weekNumber()} • ${d}</div><h2 style="margin:6px 0">${w.title}</h2><p class="sub">${w.focus}</p>${w.duration?`<button class="primary" onclick="startWorkout('${d}')">START WORKOUT • ${w.duration} MIN</button>`:`<button class="primary" onclick="quickLogRecovery()">LOG RECOVERY DAY</button>`}<div style="margin-top:10px">${exerciseList(w)}</div></section>
+    <section class="card"><div class="kicker">${planLabel()} • ${d}${w.taper?' • TAPER':''}</div><h2 style="margin:6px 0">${w.title}</h2><p class="sub">${w.focus}</p>${w.duration?`<button class="primary" onclick="startWorkout('${d}')">START WORKOUT • ${w.duration} MIN</button>`:`<button class="primary" onclick="quickLogRecovery()">LOG RECOVERY DAY</button>`}<div style="margin-top:10px">${exerciseList(w)}</div></section>
     <div class="section-title"><h3>Field tools</h3><small>build the whole hunter</small></div>
-    <div class="quick-grid"><button class="quick-card" onclick="openArcheryLog()"><span class="quick-icon">⌁</span><strong>Archery Log</strong><small>Distance, arrows, group size, notes.</small></button><button class="quick-card" onclick="openBowProfile()"><span class="quick-icon">➶</span><strong>Bow Profile</strong><small>Keep your setup in one place.</small></button><button class="quick-card" onclick="openHuntPrep()"><span class="quick-icon">✓</span><strong>Hunt Prep</strong><small>Gear, legal, field, clothing.</small></button><button class="quick-card" onclick="tab('fuel')"><span class="quick-icon">＋</span><strong>Fuel</strong><small>Meals, macros, photo log.</small></button></div>`;
+    <div class="quick-grid"><button class="quick-card" onclick="openArcheryLog()"><span class="quick-icon">⌁</span><strong>Archery Log</strong><small>Distance, arrows, group size, notes.</small></button><button class="quick-card" onclick="openBowProfile()"><span class="quick-icon">➶</span><strong>Bow Profile</strong><small>Keep your setup in one place.</small></button><button class="quick-card" onclick="openHuntPrep()"><span class="quick-icon">✓</span><strong>Hunt Prep</strong><small>Gear, legal, field, clothing.</small></button><button class="quick-card" onclick="openHunts()"><span class="quick-icon">⌛</span><strong>Hunt Dates</strong><small>Opening days drive the plan.</small></button><button class="quick-card" onclick="tab('fuel')"><span class="quick-icon">＋</span><strong>Fuel</strong><small>Meals, macros, photo log.</small></button></div>`;
 }
 function readinessForm(){ return `<div class="readiness-grid">${rangeControl('sleep','Sleep',3)}${rangeControl('energy','Energy',3)}${rangeControl('soreness','Soreness',2)}${rangeControl('stress','Stress',2)}</div><button class="primary" onclick="saveReadiness()">SAVE READINESS</button>`; }
 function rangeControl(id,label,val){ return `<div class="range-row"><label><span>${label}</span><strong id="${id}Val">${val}/5</strong></label><input id="${id}" type="range" min="1" max="5" value="${val}" oninput="$('#${id}Val').textContent=this.value+'/5'" /></div>`; }
@@ -418,9 +481,9 @@ function saveReadiness(){ const sleep=+$(' #sleep'.trim()).value,energy=+$('#ene
 function readinessSummary(r){ return `<div class="score-wrap"><div class="score-ring" style="--score:${r.score}"><strong>${r.score}</strong></div><div><strong>${r.score>=75?'Ready to work':r.score>=55?'Train, but stay honest':'Keep today conservative'}</strong><p class="note">Sleep ${r.sleep}/5 • Energy ${r.energy}/5 • Soreness ${r.soreness}/5 • Stress ${r.stress}/5</p><button class="ghost" onclick="editReadiness()">Edit check-in →</button></div></div>`; }
 function editReadiness(){ const r=getState().readiness; delete r[localDateKey()]; STORE.set('hr30_readiness',r); renderToday(); }
 
-function renderTrain(){ $('#main').innerHTML=`<div class="section-title"><h3>Training</h3><small>Week ${weekNumber()}</small></div><div class="segmented"><button class="${trainView==='week'?'active':''}" onclick="trainView='week';renderTrain()">Week</button><button class="${trainView==='history'?'active':''}" onclick="trainView='history';renderTrain()">History</button></div>${trainView==='week'?renderWeekMarkup():renderHistoryMarkup()}`; }
-function renderWeekMarkup(){ const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],today=dayName(); return `<div class="day-grid">${days.map(d=>`<div class="day-card ${d===today?'today':''}"><div class="kicker">${d}</div><h4>${PROGRAM[d].title}</h4><p>${PROGRAM[d].focus}</p><button class="ghost" onclick="openDay('${d}')">View →</button></div>`).join('')}</div><section class="card" style="margin-top:14px"><div class="kicker">PROGRESSION</div><h3>Weeks 1–2</h3><p class="sub">Learn the movements. Finish with 2–3 clean reps in reserve.</p><h3>Weeks 3–4</h3><p class="sub">Add reps or 2.5–5 lb when form stays clean.</p><h3>Weeks 5–8</h3><p class="sub">Push strength and bring ruck load gradually toward 20–30 lb.</p></section>`; }
-function openDay(d){ openModal(`<div class="close-row"><div><div class="kicker">${d}</div><h2>${PROGRAM[d].title}</h2></div><button class="icon-btn" onclick="closeModal()">×</button></div><p class="sub">${PROGRAM[d].focus}</p><div class="card flat">${exerciseList(PROGRAM[d])}</div>${PROGRAM[d].duration?`<button class="primary" onclick="closeModal();startWorkout('${d}')">START THIS WORKOUT</button>`:''}`); }
+function renderTrain(){ $('#main').innerHTML=`<div class="section-title"><h3>Training</h3><small>${planLabel()}</small></div><div class="segmented"><button class="${trainView==='week'?'active':''}" onclick="trainView='week';renderTrain()">Week</button><button class="${trainView==='history'?'active':''}" onclick="trainView='history';renderTrain()">History</button></div>${trainView==='week'?renderWeekMarkup():renderHistoryMarkup()}`; }
+function renderWeekMarkup(){ const days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],today=dayName(); return `<div class="day-grid">${days.map(d=>`<div class="day-card ${d===today?'today':''}"><div class="kicker">${d}</div><h4>${PROGRAM[d].title}</h4><p>${PROGRAM[d].focus}</p><button class="ghost" onclick="openDay('${d}')">View →</button></div>`).join('')}</div>${huntPlan()?phaseTimeline(huntPlan()):`<section class="card" style="margin-top:14px"><div class="kicker">PROGRESSION</div><h3>Weeks 1–2</h3><p class="sub">Learn the movements. Finish with 2–3 clean reps in reserve.</p><h3>Weeks 3–4</h3><p class="sub">Add reps or 2.5–5 lb when form stays clean.</p><h3>Weeks 5–8</h3><p class="sub">Push strength and bring ruck load gradually toward 20–30 lb.</p></section>`}`; }
+function openDay(d){ const w=effectiveWorkout(d); openModal(`<div class="close-row"><div><div class="kicker">${d}${w.taper?' • TAPER':''}</div><h2>${w.title}</h2></div><button class="icon-btn" onclick="closeModal()">×</button></div><p class="sub">${w.focus}</p><div class="card flat">${exerciseList(w)}</div>${w.duration?`<button class="primary" onclick="closeModal();startWorkout('${d}')">START THIS WORKOUT</button>`:''}`); }
 function renderHistoryMarkup(){ const h=getState().history; return `<section class="card">${h.length?h.map(x=>`<div class="history-item"><div class="top"><div><h4>${x.day} — ${x.title}</h4><small>${new Date(x.date).toLocaleString()}</small></div><strong>${x.duration}m</strong></div><p class="note">${x.logs?.length||0} logged sets / blocks</p><button class="ghost" onclick="viewHistory('${x.id||''}',${JSON.stringify(x.date)})">View details →</button></div>`).join(''):`<div class="empty">Complete your first workout and it will show up here.</div>`}</section>`; }
 function viewHistory(id,date){ const h=getState().history; const x=h.find(v=>(id&&v.id===id)||v.date===date); if(!x) return; openModal(`<div class="close-row"><div><div class="kicker">WORKOUT HISTORY</div><h2>${x.day} — ${x.title}</h2><p class="note">${new Date(x.date).toLocaleString()} • ${x.duration} min</p></div><button class="icon-btn" onclick="closeModal()">×</button></div>${historyLogMarkup(x.logs||[])}${x.summary?`<div class="notice">${esc(x.summary)}</div>`:''}`); }
 function historyLogMarkup(logs){ if(!logs.length) return '<div class="empty">No detailed sets were logged.</div>'; const groups={}; logs.forEach(l=>(groups[l.name]??=[]).push(l)); return Object.entries(groups).map(([name,arr])=>`<section class="card flat"><div class="kicker">${esc(name)}</div>${arr.map(l=>`<div class="weight-row"><span>Set ${l.set||'—'}</span><strong>${logDescription(l)}</strong></div>`).join('')}</section>`).join(''); }
@@ -593,7 +656,7 @@ const Alerts = {
   go(){ const st=getState().settings; if(st.restSound!==false){ this.beep(880,0.16,0); this.beep(1175,0.28,0.2); } if(st.restVibrate!==false&&navigator.vibrate){ try{ navigator.vibrate([220,90,220]); }catch{} } },
   test(){ this.unlock(); setTimeout(()=>{ const ok=this.beep(660,0.09,0)&&this.beep(880,0.16,0.35)&&this.beep(1175,0.28,0.55); if(navigator.vibrate) try{ navigator.vibrate([220,90,220]); }catch{} const el=$('#alertTestNote'); if(el) el.textContent=ok?'Played. If you heard nothing, check the phone\'s silent switch and volume.':'Sound is blocked on this device. Vibration and the on-screen GO flash still work.'; },60); }
 };
-function startWorkout(day){ Alerts.unlock(); active={day,workout:PROGRAM[day],index:0,set:1,logs:[],started:Date.now(),remaining:PROGRAM[day].duration*60,historyStack:[],mode:'workout'}; openModal(workoutModal()); clearInterval(workoutTimer); workoutTimer=setInterval(()=>{if(!active)return;active.remaining=Math.max(0,active.remaining-1);const el=$('#workoutTimer');if(el)el.textContent=fmt(active.remaining);},1000); }
+function startWorkout(day){ Alerts.unlock(); const w=effectiveWorkout(day); active={day,workout:w,index:0,set:1,logs:[],started:Date.now(),remaining:w.duration*60,historyStack:[],mode:'workout'}; openModal(workoutModal()); clearInterval(workoutTimer); workoutTimer=setInterval(()=>{if(!active)return;active.remaining=Math.max(0,active.remaining-1);const el=$('#workoutTimer');if(el)el.textContent=fmt(active.remaining);},1000); }
 function currentEx(){ return active.workout.exercises[active.index]; }
 function suggestedWeight(name){ const inSession=[...active.logs].reverse().find(l=>l.name===name&&l.weight); if(inSession)return inSession.weight; for(const h of getState().history){const f=[...(h.logs||[])].reverse().find(l=>l.name===name&&l.weight);if(f)return f.weight;} return getState().workingWeights[name]||''; }
 function snapshot(){ return {index:active.index,set:active.set,logs:JSON.parse(JSON.stringify(active.logs)),remaining:active.remaining,mode:active.mode}; }
