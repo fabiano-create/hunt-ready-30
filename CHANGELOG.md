@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 5.0.1
+
+## Layout
+- Today: the dawn scene is recomposed so the sun and ridgeline sit above the first card instead of behind it, and the first card starts higher, removing the empty band at the top.
+- More breathing room: larger card padding and spacing, taller section headings, more space between exercises.
+
 # HUNT READY 30 — Full Build 5.0.0
 
 ## New look: "Field light, instrument numbers"
