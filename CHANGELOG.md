@@ -1,3 +1,8 @@
+# HUNT READY 30 — Full Build 5.3.0
+
+## Scripture
+- World English Bible added as a second translation (Settings → Bible translation). Both KJV and WEB are public domain. WEB text was taken verbatim from the published edition; it renders the divine name as "Yahweh".
+
 # HUNT READY 30 — Full Build 5.2.1
 
 ## Scripture
