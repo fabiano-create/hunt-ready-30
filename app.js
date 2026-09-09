@@ -1,4 +1,4 @@
-const APP_VERSION = "5.3.1-full";
+const APP_VERSION = "5.3.2-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -76,10 +76,10 @@ const SCRIPTURES = [
   {ref:"Psalm 144:1",kjv:"Blessed be the LORD my strength, which teacheth my hands to war, and my fingers to fight.",web:"Blessed be Yahweh, my rock, who teaches my hands to war, and my fingers to battle.",bsb:"Blessed be the LORD, my Rock, who trains my hands for war, my fingers for battle.",focus:"Learn the skill. Respect the responsibility that comes with it."}
 ];
 // All three translations are public domain: no license or notice to maintain as the verse set grows.
-const TRANSLATIONS={kjv:"KJV",bsb:"BSB",web:"WEB"};
+const TRANSLATIONS={bsb:"BSB",kjv:"KJV",web:"WEB"};
 const TRANSLATION_NAMES={kjv:"King James Version",bsb:"Berean Standard Bible (modern English, public domain)",web:"World English Bible (modern English, public domain)"};
-function bibleVersion(){ const v=getState().settings.bible; return TRANSLATIONS[v]?v:'kjv'; }
-function verseText(v){ return v[bibleVersion()]||v.kjv; }
+function bibleVersion(){ const v=getState().settings.bible; return TRANSLATIONS[v]?v:'bsb'; }
+function verseText(v){ return v[bibleVersion()]||v.bsb||v.kjv; }
 
 const DEFAULT_CHECKLIST = [
   {category:"Bow",items:["Bow tuned and sighted","Release + backup release","Hunting arrows inspected","Broadheads sharpened / ready","Bow case","Allen keys / bow tools","String wax"]},

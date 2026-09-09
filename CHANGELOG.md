@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.3.2
+
+- Berean Standard Bible is now the default translation. KJV and WEB remain available in Settings.
+
 # HUNT READY 30 — Full Build 5.3.1
 
 ## Scripture
