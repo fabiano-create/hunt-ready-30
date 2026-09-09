@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 5.2.0
+
+## Scripture
+- Verses now default to the ESV, with the KJV available under Settings → Bible translation. "LORD" is set in small caps as in print Bibles.
+- The ESV copyright notice required by Crossway appears in Settings.
+
 # HUNT READY 30 — Full Build 5.1.2
 
 ## Updates now arrive on the first reopen

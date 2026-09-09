@@ -156,3 +156,5 @@ main{padding:18px;position:relative;z-index:1}
 @media(prefers-reduced-motion:reduce){.form-drawing .frame{animation:none}}
 
 .rest-track{height:6px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden;margin:14px auto 0;max-width:320px}.rest-track span{display:block;height:100%;background:linear-gradient(90deg,var(--teal-2),var(--accent));transition:width 1s linear}
+
+.scripture-text .lord{font-variant:small-caps;letter-spacing:.04em;font-style:normal}
