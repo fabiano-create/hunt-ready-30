@@ -1,3 +1,8 @@
+# HUNT READY 30 — Full Build 5.3.1
+
+## Scripture
+- Berean Standard Bible added as the third translation (public domain since 2023). Text taken verbatim from Berean's published file. Choices are now KJV (default), BSB, WEB.
+
 # HUNT READY 30 — Full Build 5.3.0
 
 ## Scripture

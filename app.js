@@ -1,4 +1,4 @@
-const APP_VERSION = "5.3.0-full";
+const APP_VERSION = "5.3.1-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -62,22 +62,22 @@ const BENCHMARKS = [
 ];
 
 const SCRIPTURES = [
-  {ref:"Joshua 1:9",kjv:"Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed.",web:"Haven’t I commanded you? Be strong and courageous. Don’t be afraid. Don’t be dismayed, for Yahweh your God is with you wherever you go.",focus:"Train with courage. Do the next faithful thing well."},
-  {ref:"Psalm 18:32",kjv:"It is God that girdeth me with strength, and maketh my way perfect.",web:"The God who arms me with strength, and makes my way perfect.",focus:"Strength is stewardship. Use it well."},
-  {ref:"Psalm 18:34",kjv:"He teacheth my hands to war, so that a bow of steel is broken by mine arms.",web:"He teaches my hands to war, so that my arms bend a bow of bronze.",focus:"Skill is built through patient practice."},
-  {ref:"Isaiah 40:31",kjv:"But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles.",web:"But those who wait for Yahweh will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.",focus:"Do not confuse patience with passivity."},
-  {ref:"1 Corinthians 9:24",kjv:"So run, that ye may obtain.",web:"Don’t you know that those who run in a race all run, but one receives the prize? Run like that, that you may win.",focus:"Train with purpose, not vanity."},
-  {ref:"1 Corinthians 9:27",kjv:"But I keep under my body, and bring it into subjection.",web:"But I beat my body and bring it into submission, lest by any means, after I have preached to others, I myself should be rejected.",focus:"Discipline your body without making it your master."},
-  {ref:"2 Timothy 1:7",kjv:"For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.",web:"For God didn’t give us a spirit of fear, but of power, love, and self-control.",focus:"Power with love. Intensity with a sound mind."},
-  {ref:"Philippians 4:13",kjv:"I can do all things through Christ which strengtheneth me.",web:"I can do all things through Christ, who strengthens me.",focus:"Let strength point beyond yourself."},
-  {ref:"Proverbs 27:17",kjv:"Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.",web:"Iron sharpens iron; so a man sharpens his friend’s countenance.",focus:"Let training make you more useful to the men around you."},
-  {ref:"Micah 6:8",kjv:"Do justly, and to love mercy, and to walk humbly with thy God.",web:"He has shown you, O man, what is good. What does Yahweh require of you, but to act justly, to love mercy, and to walk humbly with your God?",focus:"Strength without humility misses the point."},
-  {ref:"Colossians 3:23",kjv:"And whatsoever ye do, do it heartily, as to the Lord, and not unto men.",web:"And whatever you do, work heartily, as for the Lord, and not for men.",focus:"Make the quality of the work an act of worship."},
-  {ref:"Psalm 144:1",kjv:"Blessed be the LORD my strength, which teacheth my hands to war, and my fingers to fight.",web:"Blessed be Yahweh, my rock, who teaches my hands to war, and my fingers to battle.",focus:"Learn the skill. Respect the responsibility that comes with it."}
+  {ref:"Joshua 1:9",kjv:"Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed.",web:"Haven’t I commanded you? Be strong and courageous. Don’t be afraid. Don’t be dismayed, for Yahweh your God is with you wherever you go.",bsb:"Have I not commanded you to be strong and courageous? Do not be afraid; do not be discouraged, for the LORD your God is with you wherever you go.",focus:"Train with courage. Do the next faithful thing well."},
+  {ref:"Psalm 18:32",kjv:"It is God that girdeth me with strength, and maketh my way perfect.",web:"The God who arms me with strength, and makes my way perfect.",bsb:"It is God who arms me with strength and makes my way clear.",focus:"Strength is stewardship. Use it well."},
+  {ref:"Psalm 18:34",kjv:"He teacheth my hands to war, so that a bow of steel is broken by mine arms.",web:"He teaches my hands to war, so that my arms bend a bow of bronze.",bsb:"He trains my hands for battle; my arms can bend a bow of bronze.",focus:"Skill is built through patient practice."},
+  {ref:"Isaiah 40:31",kjv:"But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles.",web:"But those who wait for Yahweh will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.",bsb:"But those who wait upon the LORD will renew their strength; they will mount up with wings like eagles; they will run and not grow weary, they will walk and not faint.",focus:"Do not confuse patience with passivity."},
+  {ref:"1 Corinthians 9:24",kjv:"So run, that ye may obtain.",web:"Don’t you know that those who run in a race all run, but one receives the prize? Run like that, that you may win.",bsb:"Do you not know that in a race all the runners run, but only one receives the prize? Run in such a way as to take the prize.",focus:"Train with purpose, not vanity."},
+  {ref:"1 Corinthians 9:27",kjv:"But I keep under my body, and bring it into subjection.",web:"But I beat my body and bring it into submission, lest by any means, after I have preached to others, I myself should be rejected.",bsb:"No, I discipline my body and make it my slave, so that after I have preached to others, I myself will not be disqualified.",focus:"Discipline your body without making it your master."},
+  {ref:"2 Timothy 1:7",kjv:"For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.",web:"For God didn’t give us a spirit of fear, but of power, love, and self-control.",bsb:"For God has not given us a spirit of fear, but of power, love, and self-control.",focus:"Power with love. Intensity with a sound mind."},
+  {ref:"Philippians 4:13",kjv:"I can do all things through Christ which strengtheneth me.",web:"I can do all things through Christ, who strengthens me.",bsb:"I can do all things through Christ who gives me strength.",focus:"Let strength point beyond yourself."},
+  {ref:"Proverbs 27:17",kjv:"Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.",web:"Iron sharpens iron; so a man sharpens his friend’s countenance.",bsb:"As iron sharpens iron, so one man sharpens another.",focus:"Let training make you more useful to the men around you."},
+  {ref:"Micah 6:8",kjv:"Do justly, and to love mercy, and to walk humbly with thy God.",web:"He has shown you, O man, what is good. What does Yahweh require of you, but to act justly, to love mercy, and to walk humbly with your God?",bsb:"He has shown you, O man, what is good. And what does the LORD require of you but to act justly, to love mercy, and to walk humbly with your God?",focus:"Strength without humility misses the point."},
+  {ref:"Colossians 3:23",kjv:"And whatsoever ye do, do it heartily, as to the Lord, and not unto men.",web:"And whatever you do, work heartily, as for the Lord, and not for men.",bsb:"Whatever you do, work at it with your whole being, as for the Lord and not for men.",focus:"Make the quality of the work an act of worship."},
+  {ref:"Psalm 144:1",kjv:"Blessed be the LORD my strength, which teacheth my hands to war, and my fingers to fight.",web:"Blessed be Yahweh, my rock, who teaches my hands to war, and my fingers to battle.",bsb:"Blessed be the LORD, my Rock, who trains my hands for war, my fingers for battle.",focus:"Learn the skill. Respect the responsibility that comes with it."}
 ];
-// Both translations are public domain: no license or notice to maintain as the verse set grows.
-const TRANSLATIONS={kjv:"KJV",web:"WEB"};
-const TRANSLATION_NAMES={kjv:"King James Version",web:"World English Bible (modern English, public domain)"};
+// All three translations are public domain: no license or notice to maintain as the verse set grows.
+const TRANSLATIONS={kjv:"KJV",bsb:"BSB",web:"WEB"};
+const TRANSLATION_NAMES={kjv:"King James Version",bsb:"Berean Standard Bible (modern English, public domain)",web:"World English Bible (modern English, public domain)"};
 function bibleVersion(){ const v=getState().settings.bible; return TRANSLATIONS[v]?v:'kjv'; }
 function verseText(v){ return v[bibleVersion()]||v.kjv; }
 
