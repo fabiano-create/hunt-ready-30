@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 5.0.2
+
+## Today
+- Scripture leads. The verse is the first card over the dawn scene; the hunt countdown follows as the first instrument card.
+- Taller scene: the picture now fills roughly the top 40% of the screen before the verse.
+
 # HUNT READY 30 — Full Build 5.0.1
 
 ## Layout

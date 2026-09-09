@@ -1,4 +1,4 @@
-const APP_VERSION = "5.0.1-full";
+const APP_VERSION = "5.0.2-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -562,8 +562,8 @@ function renderToday(){
   const latestBody=s.bodyHistory[0]||{};
   $('#main').innerHTML=`
     <div class="scene-bg">${phaseScene(huntPlan()?.phase||'none')}<div class="grain"></div><div class="vig"></div></div><div class="today-spacer"></div>
+    <section class="card scripture-card on-scene"><div class="scripture-ref">${verse.ref}</div><p class="scripture-text">“${verse.text}”</p><div class="scripture-focus">TRAIN UNDER THIS: ${verse.focus}</div></section>
     ${countdownCard()}
-    <section class="card scripture-card"><div class="scripture-ref">${verse.ref}</div><p class="scripture-text">“${verse.text}”</p><div class="scripture-focus">TRAIN UNDER THIS: ${verse.focus}</div></section>
     <section class="card"><div class="section-title" style="margin:0 0 12px"><h3>Readiness check</h3>${ready?`<small>${ready.score}% today</small>`:'<small>30 seconds</small>'}</div>${ready?readinessSummary(ready):readinessForm()}</section>
     <section class="card"><div class="kicker">${planLabel()} • ${d}${w.taper?' • TAPER':''}</div><h2 style="margin:6px 0">${w.title}</h2><p class="sub">${w.focus}</p>${w.duration?`<div class="mode-row"><span class="tag mode-tag">${modeLabel(w.mode)}${hasTodayOverride()?' • today only':''}</span><button class="ghost" onclick="toggleTodayOverride()">${hasTodayOverride()?`Back to ${modeLabel(baseEquipment()).toLowerCase()} →`:`${baseEquipment()==='dumbbells'?'Bodyweight':'Dumbbells'} today →`}</button></div>`:''}${w.duration?`<button class="primary" onclick="startWorkout('${d}')">START WORKOUT • ${w.duration} MIN</button>`:`<button class="primary" onclick="quickLogRecovery()">LOG RECOVERY DAY</button>`}<div style="margin-top:10px">${exerciseList(w)}</div></section>
     <div class="section-title"><h3>Field tools</h3><small>build the whole hunter</small></div>
