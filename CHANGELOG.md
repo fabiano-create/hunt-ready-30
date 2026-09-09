@@ -1,3 +1,8 @@
+# HUNT READY 30 — Full Build 5.2.1
+
+## Scripture
+- Back to the King James Version only. It is public domain, so the verse set can grow without a license or notice to maintain. ESV text and the Crossway notice are removed. Small-caps LORD and the version tag stay.
+
 # HUNT READY 30 — Full Build 5.2.0
 
 ## Scripture
