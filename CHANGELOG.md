@@ -1,3 +1,11 @@
+# HUNT READY 30 — Full Build 5.1.0
+
+## Readiness now shapes the day
+- The readiness card sits right under the scripture with a plain explanation of why it exists, so it's the first thing you do.
+- Score 40–54: today's workout is trimmed automatically (one fewer set per lift, shorter carries, ruck capped at 20 min) and loads are held.
+- Score under 40: the workout card recommends the easy day (light walk + mobility) with a one-tap swap; the planned session stays available, trimmed.
+- The finish summary skips load-jump suggestions on an adjusted day.
+
 # HUNT READY 30 — Full Build 5.0.2
 
 ## Today

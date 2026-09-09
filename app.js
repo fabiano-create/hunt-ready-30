@@ -1,4 +1,4 @@
-const APP_VERSION = "5.0.2-full";
+const APP_VERSION = "5.1.0-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -482,19 +482,27 @@ function huntPlan(){
   return {hunt:h, days, phase, label:PHASES[phase].label, blurb:PHASES[phase].blurb, programWeek, phaseWeek, phaseWeeks, pct:Math.min(100,Math.round(daysFromStart/totalDays*100))};
 }
 function planLabel(){ const p=huntPlan(); return p?`${p.label} • week ${p.phaseWeek} of ${p.phaseWeeks}`:`Week ${weekNumber()}`; }
+function trimWorkout(w){
+  w.exercises=w.exercises.map(e=>{ const x={...e};
+    if(x.type==='strength'&&x.sets>=3) x.sets=x.sets-1;
+    if(x.type==='carry'&&x.sets>=4) x.sets=x.sets-2;
+    if(x.type==='ruck') x.minutes=Math.min(x.minutes||30,20);
+    if(x.type==='circuit') x.minutes=Math.min(x.minutes||20,15);
+    if(x.type==='timed'&&x.sets>=3) x.sets=x.sets-1;
+    return x; });
+  return w;
+}
+function todayReadiness(){ return getState().readiness[localDateKey()]||null; }
+function readinessLevel(score){ return score>=75?'ready':score>=55?'honest':score>=40?'conservative':'recovery'; }
 function effectiveWorkout(day){
   const w=JSON.parse(JSON.stringify(PROGRAM[day])), p=huntPlan(), mode=equipmentMode();
   w.mode=mode; w.exercises=w.exercises.map(e=>substituteExercise(e,mode));
-  if(p&&p.phase==='taper'&&w.duration){
-    w.taper=true;
-    w.exercises=w.exercises.map(e=>{ const x={...e};
-      if(x.type==='strength'&&x.sets>=3) x.sets=x.sets-1;
-      if(x.type==='carry'&&x.sets>=4) x.sets=x.sets-2;
-      if(x.type==='ruck') x.minutes=Math.min(x.minutes||30,20);
-      if(x.type==='circuit') x.minutes=Math.min(x.minutes||20,15);
-      if(x.type==='timed'&&x.sets>=3) x.sets=x.sets-1;
-      return x; });
-    w.focus=w.focus+' • taper: lighter, crisp, done early';
+  let trimmed=false;
+  if(p&&p.phase==='taper'&&w.duration){ w.taper=true; trimWorkout(w); trimmed=true; w.focus=w.focus+' • taper: lighter, crisp, done early'; }
+  const r=todayReadiness();
+  if(r&&w.duration&&day===dayName()){
+    const lvl=readinessLevel(r.score);
+    if(lvl==='conservative'||lvl==='recovery'){ w.readinessAdj=lvl; w.readinessScore=r.score; if(!trimmed) trimWorkout(w); }
   }
   return w;
 }
@@ -563,16 +571,18 @@ function renderToday(){
   $('#main').innerHTML=`
     <div class="scene-bg">${phaseScene(huntPlan()?.phase||'none')}<div class="grain"></div><div class="vig"></div></div><div class="today-spacer"></div>
     <section class="card scripture-card on-scene"><div class="scripture-ref">${verse.ref}</div><p class="scripture-text">“${verse.text}”</p><div class="scripture-focus">TRAIN UNDER THIS: ${verse.focus}</div></section>
+    ${readinessCard(ready)}
     ${countdownCard()}
-    <section class="card"><div class="section-title" style="margin:0 0 12px"><h3>Readiness check</h3>${ready?`<small>${ready.score}% today</small>`:'<small>30 seconds</small>'}</div>${ready?readinessSummary(ready):readinessForm()}</section>
-    <section class="card"><div class="kicker">${planLabel()} • ${d}${w.taper?' • TAPER':''}</div><h2 style="margin:6px 0">${w.title}</h2><p class="sub">${w.focus}</p>${w.duration?`<div class="mode-row"><span class="tag mode-tag">${modeLabel(w.mode)}${hasTodayOverride()?' • today only':''}</span><button class="ghost" onclick="toggleTodayOverride()">${hasTodayOverride()?`Back to ${modeLabel(baseEquipment()).toLowerCase()} →`:`${baseEquipment()==='dumbbells'?'Bodyweight':'Dumbbells'} today →`}</button></div>`:''}${w.duration?`<button class="primary" onclick="startWorkout('${d}')">START WORKOUT • ${w.duration} MIN</button>`:`<button class="primary" onclick="quickLogRecovery()">LOG RECOVERY DAY</button>`}<div style="margin-top:10px">${exerciseList(w)}</div></section>
+    <section class="card"><div class="kicker">${planLabel()} • ${d}${w.taper?' • TAPER':''}${w.readinessAdj?' • ADJUSTED':''}</div><h2 style="margin:6px 0">${w.title}</h2><p class="sub">${w.focus}</p>${readinessBanner(w)}${w.duration?`<div class="mode-row"><span class="tag mode-tag">${modeLabel(w.mode)}${hasTodayOverride()?' • today only':''}</span><button class="ghost" onclick="toggleTodayOverride()">${hasTodayOverride()?`Back to ${modeLabel(baseEquipment()).toLowerCase()} →`:`${baseEquipment()==='dumbbells'?'Bodyweight':'Dumbbells'} today →`}</button></div>`:''}${w.duration?`<button class="primary" onclick="startWorkout('${d}')">START WORKOUT • ${w.duration} MIN</button>`:`<button class="primary" onclick="quickLogRecovery()">LOG RECOVERY DAY</button>`}<div style="margin-top:10px">${exerciseList(w)}</div></section>
     <div class="section-title"><h3>Field tools</h3><small>build the whole hunter</small></div>
     <div class="quick-grid"><button class="quick-card" onclick="openArcheryLog()"><span class="quick-icon">⌁</span><strong>Archery Lab</strong><small>Log, target photos, trends, form check.</small></button><button class="quick-card" onclick="openBowProfile()"><span class="quick-icon">➶</span><strong>Bow Profile</strong><small>Keep your setup in one place.</small></button><button class="quick-card" onclick="openHuntPrep()"><span class="quick-icon">✓</span><strong>Hunt Prep</strong><small>Gear, legal, field, clothing.</small></button><button class="quick-card" onclick="openHunts()"><span class="quick-icon">⌛</span><strong>Hunt Dates</strong><small>Opening days drive the plan.</small></button><button class="quick-card" onclick="tab('fuel')"><span class="quick-icon">＋</span><strong>Fuel</strong><small>Meals, macros, photo log.</small></button></div>`;
 }
-function readinessForm(){ return `<div class="readiness-grid">${rangeControl('sleep','Sleep',3)}${rangeControl('energy','Energy',3)}${rangeControl('soreness','Soreness',2)}${rangeControl('stress','Stress',2)}</div><button class="primary" onclick="saveReadiness()">SAVE READINESS</button>`; }
+function readinessBanner(w){ if(!w.readinessAdj) return ''; if(w.readinessAdj==='recovery') return `<div class="notice" style="margin-top:12px"><strong>Readiness ${w.readinessScore}.</strong> Today the app recommends the easy day: a light walk and mobility. If you train anyway, the session below is already trimmed.<button class="secondary" style="width:100%;margin-top:10px" onclick="startWorkout('Saturday')">Swap to the easy day →</button></div>`; return `<div class="notice" style="margin-top:12px"><strong>Readiness ${w.readinessScore}.</strong> Today is trimmed: one fewer set per lift, hold your loads, shorter carries.</div>`; }
+function readinessCard(ready){ return `<section class="card ${ready?'':'prime'}"><div class="section-title" style="margin:0 0 6px"><h3>Readiness check</h3><small>${ready?`${ready.score} today`:'First thing · 30 seconds'}</small></div>${ready?readinessSummary(ready):`<p class="note" style="margin:0 0 12px">Your pre-flight check. Rate how you actually feel this morning and the app matches today's workout to it: push on a good day, trim on a rough one. It's the difference between training hard and getting hurt.</p>`+readinessForm()}</section>`; }
+function readinessForm(){ return `<div class="readiness-grid">${rangeControl('sleep','Sleep',3)}${rangeControl('energy','Energy',3)}${rangeControl('soreness','Soreness',2)}${rangeControl('stress','Stress',2)}</div><p class="note" style="margin:10px 0 0">1 = terrible, 5 = great. For soreness and stress, 1 means none.</p><button class="primary" onclick="saveReadiness()">SAVE READINESS</button>`; }
 function rangeControl(id,label,val){ return `<div class="range-row"><label><span>${label}</span><strong id="${id}Val">${val}/5</strong></label><input id="${id}" type="range" min="1" max="5" value="${val}" oninput="$('#${id}Val').textContent=this.value+'/5'" /></div>`; }
 function saveReadiness(){ const sleep=+$(' #sleep'.trim()).value,energy=+$('#energy').value,soreness=+$('#soreness').value,stress=+$('#stress').value; const score=Math.round(((sleep+energy+(6-soreness)+(6-stress))/20)*100); const r=getState().readiness; r[localDateKey()]={sleep,energy,soreness,stress,score,at:new Date().toISOString()}; STORE.set('hr30_readiness',r); renderToday(); }
-function readinessSummary(r){ return `<div class="score-wrap"><div class="score-ring" style="--score:${r.score}"><strong>${r.score}</strong></div><div><strong>${r.score>=75?'Ready to work':r.score>=55?'Train, but stay honest':'Keep today conservative'}</strong><p class="note">Sleep ${r.sleep}/5 • Energy ${r.energy}/5 • Soreness ${r.soreness}/5 • Stress ${r.stress}/5</p><button class="ghost" onclick="editReadiness()">Edit check-in →</button></div></div>`; }
+function readinessSummary(r){ const lvl=readinessLevel(r.score); const verdict={ready:'Ready to work',honest:'Train, but stay honest',conservative:'Trimmed day',recovery:'Recovery recommended'}[lvl]; const effect={ready:'Train as written. Push where the form stays clean.',honest:'Do the session as written, but skip load jumps today.',conservative:'One fewer set per lift, hold your loads, shorter carries. Already applied to today\'s workout.',recovery:'The app suggests the easy day instead. Training hard on a day like this is where injuries happen.'}[lvl]; return `<div class="score-wrap"><div class="score-ring" style="--score:${r.score}"><strong>${r.score}</strong></div><div><strong>${verdict}</strong><p class="note">${effect}</p><p class="note mono" style="margin-top:4px">Sleep ${r.sleep} · Energy ${r.energy} · Soreness ${r.soreness} · Stress ${r.stress}</p><button class="ghost" onclick="editReadiness()">Edit check-in →</button></div></div>`; }
 function editReadiness(){ const r=getState().readiness; delete r[localDateKey()]; STORE.set('hr30_readiness',r); renderToday(); }
 
 function renderTrain(){ $('#main').innerHTML=`<div class="section-title"><h3>Training</h3><small>${planLabel()}</small></div><div class="segmented"><button class="${trainView==='week'?'active':''}" onclick="trainView='week';renderTrain()">Week</button><button class="${trainView==='history'?'active':''}" onclick="trainView='history';renderTrain()">History</button></div>${trainView==='week'?renderWeekMarkup():renderHistoryMarkup()}`; }
@@ -851,7 +861,7 @@ function rerenderWorkout(){ if(active)$('#modal').innerHTML=workoutModal(); }
 function previousStep(){ clearInterval(restTimer);if(active.historyStack.length){restoreSnapshot(active.historyStack.pop());rerenderWorkout();}else if(confirm('Exit this workout? Your unsaved session will be discarded.')){clearInterval(workoutTimer);active=null;closeModal();} }
 function updateWorkingWeightsFromLogs(logs){ const w=getState().workingWeights;logs.forEach(l=>{ if(l.level) w[l.name]=l.level; else if(l.band) w[l.name]=l.band; else if(['strength','carry'].includes(l.type)&&l.weight) w[l.name]=l.weight; });STORE.set('hr30_workingWeights',w); }
 function finishWorkout(early){ if(!active)return;clearInterval(workoutTimer);clearInterval(restTimer);const duration=Math.max(1,Math.round((Date.now()-active.started)/60000)),summary=progressionSummary(active.logs),entry={id:uid(),date:new Date().toISOString(),day:active.day,title:active.workout.title,duration,logs:active.logs,summary,mode:active.workout.mode||'dumbbells'};saveHistory(entry);updateWorkingWeightsFromLogs(active.logs);active=null;closeModal();tab('today');setTimeout(()=>alert(early?`Workout logged at ${duration} min.`:`Workout complete. ${summary||'Nice work.'}`),100); }
-function progressionSummary(logs){ const groups={};logs.forEach(l=>{if(l.type==='strength'&&l.reps&&(l.weight||l.level||l.band))(groups[l.name]??=[]).push(l)});const recs=[];Object.entries(groups).forEach(([name,arr])=>{const e=exerciseDef(name);if(!(e?.max&&arr.length>=e.sets&&arr.every(x=>x.reps>=e.max)))return; if(e.ladder){ const lvl=Math.max(...arr.map(x=>x.level||1)); if(lvl<e.ladder.length) recs.push(`${name}: move up to L${lvl+1} (${e.ladder[lvl]}) next time`); else recs.push(`${name}: top of the ladder — add a loaded backpack or slow the tempo`); } else if(e.band){ const idx=BAND_LEVELS.indexOf(arr.at(-1).band||'Medium'); recs.push(idx<BAND_LEVELS.length-1?`${name}: try the ${BAND_LEVELS[idx+1].toLowerCase()} band next time`:`${name}: double up bands or slow the tempo`); } else recs.push(`${name}: consider +2.5–5 lb next time`);});return recs.join(' • '); }
+function progressionSummary(logs){ if(active?.workout?.readinessAdj) return 'Adjusted for readiness. Loads held today.'; const groups={};logs.forEach(l=>{if(l.type==='strength'&&l.reps&&(l.weight||l.level||l.band))(groups[l.name]??=[]).push(l)});const recs=[];Object.entries(groups).forEach(([name,arr])=>{const e=exerciseDef(name);if(!(e?.max&&arr.length>=e.sets&&arr.every(x=>x.reps>=e.max)))return; if(e.ladder){ const lvl=Math.max(...arr.map(x=>x.level||1)); if(lvl<e.ladder.length) recs.push(`${name}: move up to L${lvl+1} (${e.ladder[lvl]}) next time`); else recs.push(`${name}: top of the ladder — add a loaded backpack or slow the tempo`); } else if(e.band){ const idx=BAND_LEVELS.indexOf(arr.at(-1).band||'Medium'); recs.push(idx<BAND_LEVELS.length-1?`${name}: try the ${BAND_LEVELS[idx+1].toLowerCase()} band next time`:`${name}: double up bands or slow the tempo`); } else recs.push(`${name}: consider +2.5–5 lb next time`);});return recs.join(' • '); }
 function quickLogRecovery(){ saveHistory({id:uid(),date:new Date().toISOString(),day:'Sunday',title:'Recovery',duration:0,logs:[],summary:'Recovery day logged.'});renderToday(); }
 
 function modalIsOpen(){ return !$('#modalBackdrop').classList.contains('hidden'); }
