@@ -1,4 +1,4 @@
-const CACHE='hunt-ready-30-v5-1-1';
+const CACHE='hunt-ready-30-v5-1-2';
 const CORE=['./','index.html','styles.css','app.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));
@@ -19,8 +19,11 @@ self.addEventListener('fetch',event=>{
   }
   if(url.origin!==self.location.origin) return;
   if(url.pathname.includes('/media/demos/')) return;   // video clips: let the browser stream them directly
+  // Core app files: revalidate with the server on every load (GitHub Pages allows 10-minute caching otherwise).
+  const isCore=/\/(index\.html|app\.js|styles\.css|manifest\.webmanifest)?$/.test(url.pathname);
+  const req=isCore?new Request(event.request,{cache:'no-cache'}):event.request;
   event.respondWith(
-    fetch(event.request).then(response=>{
+    fetch(req).then(response=>{
       const copy=response.clone();
       caches.open(CACHE).then(cache=>cache.put(event.request,copy));
       return response;

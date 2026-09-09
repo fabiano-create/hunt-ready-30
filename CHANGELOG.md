@@ -1,3 +1,9 @@
+# HUNT READY 30 — Full Build 5.1.2
+
+## Updates now arrive on the first reopen
+- The service worker revalidates the app files with the server on every launch instead of trusting the 10-minute browser cache, and the app reloads itself once when a new version takes over.
+- Readiness: the "why" is reachable after you've saved the day's check-in via a "Why this matters" link.
+
 # HUNT READY 30 — Full Build 5.1.0
 
 ## Readiness now shapes the day
