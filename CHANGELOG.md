@@ -1,3 +1,8 @@
+# HUNT READY 30 — Full Build 5.4.1
+
+- Train → History → "Log a past session": record a workout you did without the app, or restore one that was lost. It shows as done on that day.
+- Settings now warns that data lives only on the phone and to export before deleting the Home Screen app.
+
 # HUNT READY 30 — Full Build 5.4.0
 
 ## Today
