@@ -41,6 +41,20 @@ const BOW_SCHEMA = {
   },
   required: ['bow_type', 'brand', 'model', 'handedness', 'handedness_confidence', 'sight', 'rest', 'stabilizer', 'quiver', 'arrows', 'readable_fields', 'other', 'notes', 'confidence'], additionalProperties: false
 };
+const RIFLE_SCHEMA = {
+  type: 'object',
+  properties: {
+    brand: { type: 'string' }, model: { type: 'string' }, caliber: { type: 'string', description: 'Only if legible on the barrel stamp, receiver, or an ammo box in the photo.' },
+    scope: { type: 'string', description: 'Brand and model / magnification if readable.' }, ammo: { type: 'string', description: 'Brand, bullet, grain weight if an ammo box is visible.' },
+    accessories: { type: 'string', description: 'Sling, bipod, suppressor, muzzle brake, rail, etc.' },
+    handedness: { type: 'string', enum: ['right', 'left', 'unknown'], description: 'Bolt handle on the right side = right-handed rifle.' },
+    other: { type: 'string', description: 'Anything else notable: stock type, action type, barrel length estimate.' },
+    readable_fields: { type: 'array', items: { type: 'string', enum: ['rifle', 'caliber', 'scope', 'ammo', 'accessories'] }, description: 'Fields whose values were READ from legible text in the photos, not inferred from shape.' },
+    notes: { type: 'string', description: 'What was read vs guessed; what a clearer photo would help with.' },
+    confidence: CONFIDENCE
+  },
+  required: ['brand', 'model', 'caliber', 'scope', 'ammo', 'accessories', 'handedness', 'other', 'readable_fields', 'notes', 'confidence'], additionalProperties: false
+};
 const FORM_SCHEMA = {
   type: 'object',
   properties: {
@@ -58,6 +72,7 @@ const FORM_SCHEMA = {
 const SYSTEMS = {
   target: `You are an archery coach reading a photo of a target for a practice log. Use the stated target-face width as the scale to estimate the group's center-to-center spread in inches. Identify the aiming point (center spot or bull) and describe where the group sits relative to it from the archer's point of view. Be honest about uncertainty; if no target or arrows are visible say so in notes, set arrows_found to 0 and group_size_in to 0.`,
   bow: `You identify archery equipment from one or more photos for a bowhunter's gear profile. Read brand and model names from labels, limb decals, riser stamps, and printed markings when legible. The named fields (brand, model, sight, rest, stabilizer, quiver, arrows) must contain SHORT PRODUCT NAMES ONLY, at most about six words; if a component's brand or model is not legible, leave that field an empty string and put the description (e.g. "cable-driven drop-away rest", "multi-pin round-housing sight") in \`other\`. Never write filler such as "none visible", "unknown", or "not legible" into a named field. List in readable_fields only the fields you actually read from text. Never invent a model name.`,
+  rifle: `You identify a hunting rifle and its optics from photos for a hunter's gear profile. Read brand, model, caliber, scope, and ammunition only from legible markings (barrel stamp, receiver, turret caps, ammo box); otherwise describe what the shape suggests and say it is a guess. Leave a field as an empty string when nothing can be determined. Never invent a model or caliber that is not readable. Never comment on anything beyond identifying the equipment.`,
   form: `You are an experienced archery coach reviewing still frames taken from a short video of one shot. Give practical, encouraging, specific observations in plain language for a beginner bowhunter. Frame everything as observations from limited frames, not a diagnosis. Focus on the things that most affect consistent accuracy for hunting: stance, bow-arm and grip pressure, a smooth draw, a repeatable anchor, and a relaxed release with follow-through. If the archer is not clearly visible, say so and keep the advice general.`
 };
 
@@ -67,7 +82,7 @@ export default async function handler(req, res) {
   if (gate(req, res)) return;
   const body = req.body || {};
   const kind = String(body.kind || '');
-  if (!['target', 'bow', 'form'].includes(kind)) return res.status(400).json({ error: 'kind must be "target", "bow", or "form".', code: 'bad_kind' });
+  if (!['target', 'bow', 'rifle', 'form'].includes(kind)) return res.status(400).json({ error: 'kind must be "target", "bow", "rifle", or "form".', code: 'bad_kind' });
 
   // max_tokens must leave room for the model's thinking as well as the JSON answer
   let schema, content, maxTokens = 6000, effort = 'medium';
@@ -86,6 +101,16 @@ export default async function handler(req, res) {
       { type: 'text', text: `${images.length} photo${images.length === 1 ? '' : 's'} of the same bow and its accessories follow.` },
       ...images.flatMap((img, i) => [{ type: 'text', text: `Photo ${i + 1} of ${images.length}:` }, imageBlock(img)]),
       { type: 'text', text: 'Identify the bow and accessories across all photos and return the JSON.' }
+    ];
+  } else if (kind === 'rifle') {
+    const raw = Array.isArray(body.imageDataUrls) ? body.imageDataUrls : [body.imageDataUrl];
+    const images = raw.map(parseImageDataUrl).filter(Boolean).slice(0, 6);
+    if (!images.length) return res.status(400).json({ error: 'At least one JPEG, PNG, GIF, or WebP rifle photo is required.', code: 'bad_image' });
+    schema = RIFLE_SCHEMA;
+    content = [
+      { type: 'text', text: `${images.length} photo${images.length === 1 ? '' : 's'} of the same rifle, its scope, and any ammo follow.` },
+      ...images.flatMap((img, i) => [{ type: 'text', text: `Photo ${i + 1} of ${images.length}:` }, imageBlock(img)]),
+      { type: 'text', text: 'Identify the rifle, scope, and ammunition across all photos and return the JSON.' }
     ];
   } else {
     const frames = Array.isArray(body.frames) ? body.frames.map(parseImageDataUrl).filter(Boolean) : [];

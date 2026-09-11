@@ -1,3 +1,26 @@
+# HUNT READY 30 — Full Build 5.4.0
+
+## Today
+- Completed workouts now show a Done card in place of Start: minutes, sets, load moved, a commendation verse (rotates daily, in your chosen translation), and View details / Train again.
+- Field Tools get drawn icons (target, crossed bow and rifle, checklist, hourglass, flame). Fuel spans the full width on phones.
+
+## Workout
+- Session clock runs on the wall clock, so it stays right after the app is in the background.
+- Timed blocks (warm-up, circuit, ruck, plank holds) have their own countdown with Start / Pause / Reset, ticks at 3-2-1 and GO at zero. The circuit always starts at 20:00 regardless of what happened in the warm-up.
+- Rest timer is wall-clock too.
+- Circuit notes render as a stacked list instead of a bullet-separated line.
+
+## Hunts
+- Form is stacked; Weapon (bow, rifle, crossbow, muzzleloader) is saved with each hunt and shown on the countdown. Hunts can be edited after saving.
+
+## Weapon Profile (was Bow Profile)
+- Bow | Rifle switch. Rifle profile stores make/model, caliber, scope, zero distance, ammo, accessories, handedness, notes, and photos; AI scan reads labels the same conservative way the bow scan does. A Rifle category is added to Hunt Prep when you save a rifle profile or a rifle hunt.
+
+## Fixed
+- View details on a logged workout did nothing (a quote inside the button broke the handler).
+- Progress: editing Reverse Lunge (and other shared names) in dumbbell mode showed bodyweight levels. Loads and levels are now stored separately per mode.
+- New app icon (broadhead over the ridgeline). Re-add the app to your Home Screen to see it.
+
 # HUNT READY 30 — Full Build 5.3.2
 
 - Berean Standard Bible is now the default translation. KJV and WEB remain available in Settings.
