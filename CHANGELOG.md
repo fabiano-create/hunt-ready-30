@@ -1,3 +1,11 @@
+# HUNT READY 30 — Full Build 5.4.2
+
+## Session editor
+- "Log a past session" now records every exercise: weight, reps, and sets for lifts; level or band in bodyweight mode; load and seconds for carries; rounds for circuits; load, minutes, and miles for rucks. Blank rows are skipped.
+- Any logged session can be edited (History → Edit, View details → Edit this session, or Edit on the Done card) or deleted.
+- Weights entered in the editor update your current loads on Progress, exactly like a live workout.
+- Date and time inputs no longer overlap on iPhone.
+
 # HUNT READY 30 — Full Build 5.4.1
 
 - Train → History → "Log a past session": record a workout you did without the app, or restore one that was lost. It shows as done on that day.
