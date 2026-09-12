@@ -1,3 +1,12 @@
+# HUNT READY 30 — Full Build 5.6.0
+
+## First launch
+- New users get a five-step setup: welcome, first hunt, equipment, how-to-use guide, done. Existing users see it once too (it's harmless; your data is untouched).
+- The AI endpoint is filled in by default so meal, target, bow, and form scans work out of the box.
+
+## Help
+- Settings → How to use the app (the start guide, re-runnable setup) and Send Feedback, which opens an email with the version, install state, device, equipment, and plan already filled in. Today has a small Beta footer with both links.
+
 # HUNT READY 30 — Full Build 5.5.0
 
 ## Training blocks

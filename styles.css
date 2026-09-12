@@ -180,3 +180,8 @@ main{padding:18px;position:relative;z-index:1}
 input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;min-width:0;width:100%;min-height:46px;font-family:var(--f-mono);font-size:16px;text-align:left}
 input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:left}
 .session-ex{padding:12px 0;border-bottom:1px solid var(--line)}.session-ex:last-child{border-bottom:0}.session-ex .field{margin-top:8px}.session-ex .field input,.session-ex .field select{padding:10px}
+
+/* onboarding + guide */
+.onboard h2{font-size:28px}
+.guide-steps{margin:6px 0 0;padding:0 0 0 20px;color:var(--text);line-height:1.5;font-size:14.5px}.guide-steps li{margin:0 0 12px}.guide-steps strong{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.03em;font-size:15px}.guide-steps em{font-style:normal;color:var(--accent-2)}
+.onboard .check-row span{font:400 14px/1.4 var(--f-body);letter-spacing:0;text-transform:none}
