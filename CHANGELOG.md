@@ -1,3 +1,12 @@
+# HUNT READY 30 — Full Build 5.5.0
+
+## Training blocks
+- In dumbbell mode the movement in each slot now changes with the phase: Block 1 Foundation (Base), Block 2 Unilateral (Build), Block 3 Peak (Peak and Taper). Without a hunt date, blocks rotate every four weeks from your start date.
+- New movements with guides, drawings, and videos: Split Squat, Bulgarian Split Squat, Staggered-Stance RDL, Single-Leg RDL, Single-Arm Floor Press, Gorilla Row, Renegade Row, Rack Carry. Push-ups take the press slot in Block 2. Rucks get longer and hillier each block.
+- Train tab shows the current block and when it switches; Today shows a one-time notice when a new block starts.
+- Progress tracks each variant separately and keeps every movement you've logged in the list.
+- Bodyweight mode keeps its ladders; blocks don't apply there.
+
 # HUNT READY 30 — Full Build 5.4.2
 
 ## Session editor
