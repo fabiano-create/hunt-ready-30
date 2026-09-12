@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 5.7.1
+
+## Circuit loads
+- The Friday 20-Min Hunter Circuit now lists its movements, and every loaded movement (goblet squat, DB RDL, reverse lunge, one-arm row, farmer carry) gets its own weight box in the live workout and in the session editor. Rounds and minutes stay.
+- Loads prefill from your last circuit. History details list each load. Progress charts each circuit movement under "Circuit · …" and shows them in Current loads.
+- Bodyweight mode logs the backpack carry and optional lunge load the same way.
+
 # HUNT READY 30 — Full Build 5.7.0
 
 ## Gym mode
