@@ -1,3 +1,14 @@
+# HUNT READY 30 — Full Build 5.7.0
+
+## Gym mode
+- Third equipment option in setup and Settings: Gym (barbells, cables, machines). Same days, same slots, same phase-aligned blocks.
+- Block 1: back squat, trap-bar deadlift, bench press, cable row, face pull, EZ-bar curl, calf machine, farmer handles, incline treadmill with a pack. Block 2: front squat, barbell RDL, incline dumbbell bench, chest-supported row, trap-bar carry, stair climber. Block 3: Bulgarian split squat, single-leg RDL, overhead press, lat pulldown or weighted pull-ups, sandbag carry, heaviest pack on the steepest incline.
+- Barbell lifts log total bar weight, bar included, and say so on the input.
+- Safety notes on squat, bench, overhead, and deadlift slots, shown in the workout and the guide: safety pins or a spotter, no benching alone without them.
+- 17 new guides with drawings; 14 with videos. Learn has All / Dumbbells / Bodyweight / Gym filters.
+- Today's one-day override now offers whichever two modes you're not in, so a hotel gym or a camp weekend is one tap.
+- Gym benchmarks: trap-bar 225×5, back squat 185×5, bench 155×5, 8 pull-ups, farmer handles 200 lb for 60 s, plank 90 s, stair climber with a 30 lb pack for 30 min.
+
 # HUNT READY 30 — Full Build 5.6.0
 
 ## First launch

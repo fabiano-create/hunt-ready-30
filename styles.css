@@ -185,3 +185,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
 .onboard h2{font-size:28px}
 .guide-steps{margin:6px 0 0;padding:0 0 0 20px;color:var(--text);line-height:1.5;font-size:14.5px}.guide-steps li{margin:0 0 12px}.guide-steps strong{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.03em;font-size:15px}.guide-steps em{font-style:normal;color:var(--accent-2)}
 .onboard .check-row span{font:400 14px/1.4 var(--f-body);letter-spacing:0;text-transform:none}
+
+/* gym mode */
+.notice.safety{border-color:rgba(255,107,61,.4);background:rgba(255,107,61,.08);color:#ffd2c2;margin-top:10px}
+.segmented.four{grid-template-columns:repeat(4,1fr)}.segmented.four button{padding:9px 4px;font-size:11px;letter-spacing:.08em}
