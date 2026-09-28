@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.8.1
+
+- A hunter now sits at the fire on a log, back to you, bow leaning beside him. He is there from day one, lit by the fire once it is burning.
+
 # HUNT READY 30 — Full Build 5.8.0
 
 ## Your Camp

@@ -159,6 +159,32 @@ function campFire(c,level){ const cx=185,cy=348;
   c.save(); c.translate(cx,cy); c.rotate(.35); cLog(c,-14,-3,28,6,{end:true,tone:2}); c.rotate(-.7); cLog(c,-14,-3,28,6,{end:true,tone:2}); c.restore();
   if(level>0){ const h=level===1?22:36,w=level===1?9:13; c.save(); c.globalCompositeOperation='lighter'; campFlame(c,cx,cy,w,h,'rgba(255,110,30,.85)'); campFlame(c,cx,cy,w*.65,h*.7,'rgba(255,190,70,.9)'); campFlame(c,cx,cy,w*.35,h*.42,'rgba(255,245,200,.95)'); for(let i=0;i<(level===1?6:14);i++){ c.fillStyle=`rgba(255,${160+crnd()*80|0},60,${.5+crnd()*.5})`; c.beginPath(); c.arc(cx+(crnd()-.5)*30,cy-10-crnd()*50,.7+crnd()*1.1,0,7); c.fill(); } c.restore(); }
   [[-16,4],[-10,8],[-3,9],[5,9],[12,7],[17,2],[13,-3],[-13,-2]].forEach(([dx,dy],i)=>cStone(c,cx+dx,cy+dy,4.6,3,{moss:i%3===0,tone:'#6e6a5c'})); }
+function campHunter(c,fire){ // seated on a log with his back to us, facing the fire
+  const x=201, base=359, rim=fire?'rgba(255,190,110,.75)':'rgba(255,220,170,.35)';
+  cBlob(c,x,base+2,20,4,'rgba(0,0,0,.45)');
+  cLog(c,x-19,base-8,38,8,{end:true,tone:1});
+  // boots either side of the log
+  c.fillStyle='#1c1409'; cRR(c,x-15,base-4,7,5,2); c.fill(); cOutline(c,.6,1); cRR(c,x+8,base-4,7,5,2); c.fill(); cOutline(c,.6,1);
+  // torso (jacket)
+  const tg=c.createLinearGradient(x-12,0,x+12,0); tg.addColorStop(0,'#2e3320'); tg.addColorStop(.5,'#4d5231'); tg.addColorStop(1,'#242a19');
+  cPoly(c,[[x-11,base-33],[x+11,base-33],[x+9,base-8],[x-9,base-8]]); c.fillStyle=tg; c.fill(); cOutline(c,.7,1.3);
+  // pack straps
+  c.strokeStyle='rgba(20,14,6,.6)'; c.lineWidth=2; c.beginPath(); c.moveTo(x-6,base-32); c.lineTo(x-4,base-12); c.moveTo(x+6,base-32); c.lineTo(x+4,base-12); c.stroke();
+  // arms resting on knees
+  c.strokeStyle='#3c4227'; c.lineWidth=5; c.lineCap='round'; c.beginPath(); c.moveTo(x-10,base-30); c.lineTo(x-16,base-16); c.moveTo(x+10,base-30); c.lineTo(x+16,base-16); c.stroke();
+  c.strokeStyle='rgba(18,10,4,.55)'; c.lineWidth=1; c.beginPath(); c.moveTo(x-10,base-30); c.lineTo(x-16,base-16); c.moveTo(x+10,base-30); c.lineTo(x+16,base-16); c.stroke();
+  // rim light on the shoulders (fire side is toward the viewer's far side, so the top edges catch it)
+  c.strokeStyle=rim; c.lineWidth=1.6; c.beginPath(); c.moveTo(x-10,base-32); c.lineTo(x+10,base-32); c.stroke();
+  // neck + head
+  c.fillStyle='#3a2a1c'; c.fillRect(x-2.5,base-38,5,6);
+  const hg=c.createRadialGradient(x,base-40,1,x,base-39,7); hg.addColorStop(0,'#5a4330'); hg.addColorStop(1,'#2a1c12'); c.fillStyle=hg; c.beginPath(); c.arc(x,base-40,6,0,7); c.fill(); cOutline(c,.7,1.2);
+  // cap with brim, brim toward the fire (away from us)
+  c.fillStyle='#3b3a24'; c.beginPath(); c.arc(x,base-42,6.5,Math.PI,0); c.closePath(); c.fill(); cOutline(c,.7,1.2);
+  c.fillStyle='#2d2c1a'; c.beginPath(); c.ellipse(x,base-42,9,2.4,0,0,7); c.fill(); cOutline(c,.6,1);
+  c.strokeStyle=rim; c.lineWidth=1.4; c.beginPath(); c.arc(x,base-42,6.5,Math.PI*1.15,Math.PI*1.85); c.stroke();
+  // bow leaning on the log
+  c.strokeStyle='#cbbf9c'; c.lineWidth=2; c.beginPath(); c.moveTo(x+22,base-34); c.quadraticCurveTo(x+30,base-20,x+24,base-2); c.stroke(); c.strokeStyle='rgba(230,220,190,.8)'; c.lineWidth=.8; c.beginPath(); c.moveTo(x+22,base-34); c.lineTo(x+24,base-2); c.stroke();
+}
 function campCairn(c,n){ const layout=[[0,0],[9,0],[-9,0],[4,-6],[-5,-6],[18,0],[-18,0],[13,-6],[-14,-6],[0,-12],[9,-12],[-9,-12]]; for(let i=0;i<Math.min(n,12);i++){ const [dx,dy]=layout[i]; cStone(c,228+dx,346+dy,5.8,3.8,{moss:i%4===1,tone:i%2?'#7c786a':'#8e8a7a'}); } if(n>=12){ c.strokeStyle='rgba(255,220,150,.7)'; c.lineWidth=1; c.beginPath(); c.moveTo(228,326); c.lineTo(228,338); c.moveTo(224,330); c.lineTo(232,330); c.stroke(); } }
 function campLantern(c,x,base){ cLog(c,x-2,base-46,4,46,{end:false,tone:2}); cLog(c,x-2,base-46,16,3,{end:false,tone:1}); const ly=base-38; c.strokeStyle='#3a3a3a'; c.lineWidth=1.2; c.beginPath(); c.moveTo(x+12,base-43); c.lineTo(x+12,ly-6); c.stroke(); cGlow(c,x+12,ly+4,26,'rgba(255,200,90,A)',.7); cRR(c,x+8,ly-4,8,12,1.5); c.fillStyle='#2a2a2a'; c.fill(); cRR(c,x+9,ly-2,6,8,1); c.fillStyle='#ffd67a'; c.fill(); cRR(c,x+8,ly-4,8,12,1.5); cOutline(c,.8,1); c.fillStyle='#3a3a3a'; c.fillRect(x+7,ly-6,10,2); c.fillRect(x+7,ly+8,10,2); }
 function campCabin(c,logs,roof,extras){ const x=256,w=76,base=348,lh=9;
@@ -192,7 +218,7 @@ function paintCampScene(canvas,phase,camp){
   campBigPine(c); campTrail(c,camp.trail); campLadder(c,camp.rungs,camp.platform);
   if(!camp.meatPole){ if(!camp.roof) campTent(c); } if(camp.meatPole) campMeatPole(c);
   campRange(c,camp.range); campCabin(c,camp.logs,camp.roof,camp.extras); campWoodpile(c,camp.woodRows); if(camp.cache) campCrate(c,344,camp.woodRows>=3?306:320,22,12);
-  campCairn(c,camp.stones); if(camp.lantern) campLantern(c,160,346); campFire(c,camp.fire);
+  campCairn(c,camp.stones); if(camp.lantern) campLantern(c,160,346); campFire(c,camp.fire); campHunter(c,camp.fire);
   if(camp.fire>0){ c.save(); c.globalCompositeOperation='lighter'; const g=c.createRadialGradient(185,350,4,185,350,camp.fire===1?70:110); g.addColorStop(0,`rgba(255,140,50,${camp.fire===1?.35:.5})`); g.addColorStop(1,'rgba(255,140,50,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(185,352,camp.fire===1?80:120,camp.fire===1?26:36,0,0,7); c.fill(); c.restore(); }
   c.restore();
   const v=c.createRadialGradient(LW/2,150,80,LW/2,220,Math.max(330,LW*.9)); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.5)'); c.fillStyle=v; c.fillRect(0,0,LW,CAMP_H);
