@@ -1,3 +1,11 @@
+# HUNT READY 30 — Full Build 5.8.0
+
+## Your Camp
+- The Today scene is now a painted hunting camp that grows out of your logged sessions. Leg days cut the trail and hang the tree stand. Rows and presses lay the cabin logs, then the roof, then the antlers and banner. Rucks stack the woodpile and pack the cache. Friday's circuit keeps the fire lit. Archery sessions build the range. Three sessions in a week add a memorial stone.
+- A Camp card under the Scripture shows every structure, how far along it is, and what today's workout builds. The Done card shows the piece you just added.
+- Nothing is ever torn down. The fire burns low after two missed Fridays, but every log, rung, and stone stays. Sessions count, pounds do not, so bodyweight, dumbbell, and gym men build the same camp. Rest days keep the week.
+- It reads the sessions you already logged, so the camp starts with what you have earned.
+
 # HUNT READY 30 — Full Build 5.7.1
 
 ## Circuit loads
