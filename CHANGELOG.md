@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 5.9.0
+
+## Season and weather
+- The camp's light and weather now follow your hunt phase. Base is a misty late-summer dawn. Build is a golden autumn afternoon with leaves drifting through the clearing. Peak is a cold front with rain and a grey sky. Taper is the clear night before opening day: stars, a moon, snow falling, snow on the cabin roof and woodpile, and the fire throwing light across the dark camp.
+- The Camp card names the season next to your plan.
+- No hunt on the calendar keeps the dawn scene.
+
 # HUNT READY 30 — Full Build 5.8.2
 
 - Build animation. When a session adds a piece to the camp, Today paints the camp as it was, then the new log, rung, stone, or row drops into place with a glow and a burst of sparks. A newly lit fire flares up from the ring. Turned off automatically when the phone's Reduce Motion setting is on.
