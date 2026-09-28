@@ -1,3 +1,11 @@
+# HUNT READY 30 — Full Build 5.10.0
+
+## Real time of day
+- The camp's light now follows the actual clock. Open it before sunrise and the sky is dark with stars and a moon and the fire lighting the clearing. Dawn breaks warm over the ridge, full day is bright, dusk goes golden, and night comes back. The sun and moon cross the sky in the right direction for the hour.
+- Sunrise and sunset are estimated from the phone's time zone with no permission asked. Settings → Camp light shows today's times. A switch there lets you use your exact location instead; it is stored only on the phone and never sent anywhere.
+- The hunt phase still sets the season and weather: mist, autumn leaves, cold rain, or snow.
+- The scene repaints itself as the light changes while the app is open.
+
 # HUNT READY 30 — Full Build 5.9.0
 
 ## Season and weather

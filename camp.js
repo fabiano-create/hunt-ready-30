@@ -61,7 +61,7 @@ function campCard(c){
     ['stones','Memorial stones', c.stones?`${c.stones} week${c.stones===1?'':'s'} kept · 3 sessions a week`:'3 sessions in a week · 0 kept', Math.min(12,c.stones),12,'teal']];
   const [ , nextText]=campBuildsFor(dayName(),c);
   const done=todaysSessions().length>0;
-  return `<section class="card camp-card"><div class="camp-head"><div><div class="kicker">Your camp · ${planLabel()} · ${(CAMP_SKY[huntPlan()?.phase||'none']||CAMP_SKY.none).label}</div><h2>${campStageWord(c)}</h2></div><div class="camp-stat"><strong>${c.sessions}</strong><span>sessions</span></div></div>
+  return `<section class="card camp-card"><div class="camp-head"><div><div class="kicker">Your camp · ${planLabel()} · ${(CAMP_SKY[huntPlan()?.phase||'none']||CAMP_SKY.none).label} · ${campDaylight().mode}</div><h2>${campStageWord(c)}</h2></div><div class="camp-stat"><strong>${c.sessions}</strong><span>sessions</span></div></div>
     <div class="build-list">${rows.map(r=>`<div class="build ${r[3]===0?'dim':''}">${ICON[r[0]]}<div><b>${r[1]}</b><small>${r[2]}</small></div>${ticks(r[3],r[4],r[5])}</div>`).join('')}</div>
     <div class="notice camp-next"><b>${done?'Built today':'Today builds'}</b>${done?campBuiltPiece(dayName(),c)[1]:nextText}</div></section>`;
 }
@@ -70,13 +70,45 @@ function campBuiltMarkup(day){ const c=campState(); const [piece,title,sub]=camp
 // ---------- painter ----------
 // Season, light, and weather follow the hunt phase: late-summer dawn → autumn afternoon → cold rain → snow at night before opening day.
 const CAMP_SKY={
-  base: {label:'Late-summer dawn · mist', time:'dawn', weather:'mist', top:'#13312c',mid:'#2f7d72',band:'#d9a04a',horizon:'#f3c76e',dusk:'#5a4020',sun:'#fff0c0', far:['#3d5c57','#1f3a33'],mid2:['#1e3a2f','#0f2118'],lit:.28,haze:'233,184,106', pine:{dark:'#0b1c13',light:'#1f4a30',rim:'rgba(255,205,130,.4)'}, tree:{dark:'#0d1f16',light:'#1c3a28',rim:'rgba(255,200,120,.18)'}, ground:['#2b3d26','#26331f','#0e150f'], grass:[60,80,30], tuft:[90,120,60], night:false},
-  build:{label:'Autumn afternoon · leaves', time:'afternoon', weather:'leaves', top:'#24485a',mid:'#7a8a62',band:'#e8a04a',horizon:'#f7b35a',dusk:'#5a3a1e',sun:'#fff0c0', far:['#5c5a44','#2e3428'],mid2:['#3d3a22','#1c2014'],lit:.4,haze:'240,170,90', pine:{dark:'#14200f',light:'#3a5a2a',rim:'rgba(255,190,110,.45)'}, tree:{dark:'#1a2210',light:'#3a4a22',rim:'rgba(255,190,110,.2)'}, ground:['#4a3d22','#3a3320','#141209'], grass:[110,80,30], tuft:[140,100,50], night:false},
+  base: {label:'Late summer · mist', time:'dawn', weather:'mist', top:'#1e4a5a',mid:'#4c8ea0',band:'#b9c8a8',horizon:'#e0d8a8',dusk:'#4f4a2c',sun:'#fff0c0', far:['#3d5c57','#1f3a33'],mid2:['#1e3a2f','#0f2118'],lit:.28,haze:'233,184,106', pine:{dark:'#0b1c13',light:'#1f4a30',rim:'rgba(255,205,130,.4)'}, tree:{dark:'#0d1f16',light:'#1c3a28',rim:'rgba(255,200,120,.18)'}, ground:['#2b3d26','#26331f','#0e150f'], grass:[60,80,30], tuft:[90,120,60], night:false},
+  build:{label:'Autumn · leaves', time:'afternoon', weather:'leaves', top:'#2d5a7a',mid:'#6f9ab8',band:'#d9c39a',horizon:'#f0d8a8',dusk:'#5a4a2e',sun:'#fff0c0', far:['#5c5a44','#2e3428'],mid2:['#3d3a22','#1c2014'],lit:.4,haze:'240,170,90', pine:{dark:'#14200f',light:'#3a5a2a',rim:'rgba(255,190,110,.45)'}, tree:{dark:'#1a2210',light:'#3a4a22',rim:'rgba(255,190,110,.2)'}, ground:['#4a3d22','#3a3320','#141209'], grass:[110,80,30], tuft:[140,100,50], night:false},
   peak: {label:'Cold front · rain', time:'overcast', weather:'rain', top:'#38434c',mid:'#66727c',band:'#8a929a',horizon:'#9aa1a6',dusk:'#4a5052',sun:'#e8ecf0', far:['#4a5660','#2a343a'],mid2:['#243029','#111a15'],lit:.08,haze:'160,180,190', pine:{dark:'#0c1a14',light:'#1c3428',rim:'rgba(200,220,230,.25)'}, tree:{dark:'#0f1c16',light:'#1c2e24',rim:'rgba(200,220,230,.12)'}, ground:['#26302a','#1f2822','#0b100d'], grass:[50,70,40], tuft:[70,90,60], night:false},
-  taper:{label:'Night before · snow', time:'night', weather:'snow', top:'#050a14',mid:'#0b1526',band:'#14233a',horizon:'#22304a',dusk:'#141a22',sun:'#e9eefc', far:['#2a3646','#141c26'],mid2:['#131d1a','#0a100d'],lit:.06,haze:'120,140,180', pine:{dark:'#08120e',light:'#14261c',rim:'rgba(180,200,230,.3)'}, tree:{dark:'#0a1410',light:'#132019',rim:'rgba(180,200,230,.12)'}, ground:['#1c2430','#161d24','#080b0d'], grass:[70,80,90], tuft:[90,100,120], night:true}
+  taper:{label:'First snow', time:'night', weather:'snow', top:'#3a5a78',mid:'#7f9fb8',band:'#c8d3dc',horizon:'#e6e9ec',dusk:'#5a6270',sun:'#f4f6ff', far:['#5a6a7a','#34404c'],mid2:['#2a3a44','#141c22'],lit:.2,haze:'200,210,225', pine:{dark:'#0e1c16',light:'#24402e',rim:'rgba(220,230,245,.35)'}, tree:{dark:'#101c16',light:'#1e3024',rim:'rgba(220,230,245,.15)'}, ground:['#5a6470','#4a5460','#141a20'], grass:[120,130,140], tuft:[140,150,160], night:false}
 };
-CAMP_SKY.none={...CAMP_SKY.base,label:'Dawn · mist',band:'#b08040',horizon:'#d9b46a',dusk:'#4a3a24',sun:'#f4e2ac'};
-let CAMP_ENV=CAMP_SKY.base;
+CAMP_SKY.none={...CAMP_SKY.base,label:'Mist'};
+// night and golden-hour palettes blended in by the real clock
+const CAMP_NIGHT={top:'#050a14',mid:'#0b1526',band:'#14233a',horizon:'#22304a',dusk:'#141a22',sun:'#e9eefc', far:['#2a3646','#141c26'],mid2:['#131d1a','#0a100d'],lit:.06,haze:'120,140,180', pine:{dark:'#08120e',light:'#14261c',rim:'rgba(180,200,230,.3)'}, tree:{dark:'#0a1410',light:'#132019',rim:'rgba(180,200,230,.12)'}, ground:['#1c2430','#161d24','#080b0d'], grass:[70,80,90], tuft:[90,100,120]};
+const CAMP_GOLDEN={top:'#22384a',mid:'#7a6a5a',band:'#e0883a',horizon:'#f7b35a',dusk:'#5a3a1e',sun:'#fff0c0', far:['#5a5044','#2e2a24'],mid2:['#3a3020','#1a170f'],lit:.42,haze:'240,170,90', pine:{dark:'#12200f',light:'#3a5028',rim:'rgba(255,190,110,.5)'}, tree:{dark:'#1a2010',light:'#3a4222',rim:'rgba(255,190,110,.22)'}, ground:['#4a3d22','#3a3320','#141209'], grass:[110,80,30], tuft:[140,100,50]};
+let CAMP_ENV=CAMP_SKY.base, CAMP_LIGHT={L:1,G:0,mode:'day',sunP:.5,moonP:0};
+function cParse(col){ if(col[0]==='#') return [parseInt(col.slice(1,3),16),parseInt(col.slice(3,5),16),parseInt(col.slice(5,7),16),1]; const m=col.match(/[\d.]+/g).map(Number); return [m[0],m[1],m[2],m.length>3?m[3]:1]; }
+function cMix(a,b,t){ if(t<=0) return a; if(t>=1) return b; const A=cParse(a),B=cParse(b); const r=A.map((v,i)=>v+(B[i]-v)*t); return `rgba(${r[0]|0},${r[1]|0},${r[2]|0},${r[3].toFixed(3)})`; }
+function envMix(a,b,t){ const o={...a}; for(const k in b){ const va=a[k],vb=b[k]; if(va===undefined){ o[k]=vb; continue; }
+  if(typeof vb==='string'&&(vb[0]==='#'||vb.startsWith('rgba'))) o[k]=cMix(va,vb,t);
+  else if(typeof vb==='string'&&/^\d+,\d+,\d+$/.test(vb)){ const B=vb.split(',').map(Number),A=va.split(',').map(Number); o[k]=A.map((v,i)=>(v+(B[i]-v)*t)|0).join(','); }
+  else if(Array.isArray(vb)) o[k]=vb.map((v,i)=>typeof v==='number'?va[i]+(v-va[i])*t:cMix(va[i],v,t));
+  else if(typeof vb==='number') o[k]=va+(vb-va)*t;
+  else if(vb&&typeof vb==='object') o[k]=envMix(va,vb,t);
+  else o[k]=vb; } return o; }
+function campEnvNow(phase){ const base=CAMP_SKY[phase]||CAMP_SKY.none; const Lt=CAMP_LIGHT; const overcast=base.weather==='rain'; const L=Lt.L*(overcast?.8:1);
+  let env={...base,...envMix(CAMP_NIGHT,base,L)}; env=envMix(env,CAMP_GOLDEN,Lt.G*(overcast?.3:.85)); env.dark=1-L; env.overcast=overcast; return env; }
+
+// ---------- real clock: sunrise and sunset from the phone's time zone, or its location when allowed ----------
+const CAMP_ZONE_LL={'America/New_York':[38,-78],'America/Detroit':[42.3,-83],'America/Kentucky/Louisville':[38.2,-85.7],'America/Indiana/Indianapolis':[39.8,-86.2],'America/Chicago':[38,-92],'America/Denver':[39.7,-105],'America/Boise':[43.6,-116.2],'America/Phoenix':[33.4,-112],'America/Los_Angeles':[37,-120],'America/Anchorage':[61.2,-149.9],'Pacific/Honolulu':[21.3,-157.8],'America/Toronto':[43.7,-79.4],'America/Vancouver':[49.3,-123.1],'America/Edmonton':[53.5,-113.5],'America/Winnipeg':[49.9,-97.1],'America/Halifax':[44.6,-63.6],'America/Mexico_City':[19.4,-99.1],'Europe/London':[51.5,-0.1],'Europe/Dublin':[53.3,-6.3],'Europe/Paris':[48.9,2.3],'Europe/Berlin':[52.5,13.4],'Europe/Madrid':[40.4,-3.7],'Europe/Rome':[41.9,12.5],'Australia/Sydney':[-33.9,151.2],'Australia/Melbourne':[-37.8,145],'Australia/Brisbane':[-27.5,153],'Australia/Perth':[-31.9,115.9],'Pacific/Auckland':[-36.8,174.8],'Africa/Johannesburg':[-26.2,28],'Asia/Tokyo':[35.7,139.7]};
+function campLocation(){ const g=getState().settings.geo; if(g&&typeof g.lat==='number') return {lat:g.lat,lon:g.lon,source:'location'}; let tz=''; try{ tz=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch(e){} const ll=CAMP_ZONE_LL[tz]; if(ll) return {lat:ll[0],lon:ll[1],source:'zone',zone:tz}; const off=-new Date().getTimezoneOffset()/60; return {lat:38,lon:off*15,source:'zone',zone:tz||('UTC'+(off>=0?'+':'')+off)}; }
+function campSunTimes(date,lat,lon){ const rad=Math.PI/180,deg=180/Math.PI; const N=Math.floor((Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())-Date.UTC(date.getFullYear(),0,0))/864e5); const lngHour=lon/15, tzH=-date.getTimezoneOffset()/60;
+  const calc=rise=>{ const t=N+(((rise?6:18)-lngHour)/24); const M=(0.9856*t)-3.289; let L=M+(1.916*Math.sin(M*rad))+(0.020*Math.sin(2*M*rad))+282.634; L=((L%360)+360)%360; let RA=deg*Math.atan(0.91764*Math.tan(L*rad)); RA=((RA%360)+360)%360; const Lq=Math.floor(L/90)*90,RAq=Math.floor(RA/90)*90; RA=(RA+(Lq-RAq))/15; const sinDec=0.39782*Math.sin(L*rad),cosDec=Math.cos(Math.asin(sinDec)); const cosH=(Math.cos(90.833*rad)-(sinDec*Math.sin(lat*rad)))/(cosDec*Math.cos(lat*rad)); if(cosH>1||cosH<-1) return null; let H=rise?360-deg*Math.acos(cosH):deg*Math.acos(cosH); H/=15; const T=H+RA-(0.06571*t)-6.622; let UT=T-lngHour; UT=((UT%24)+24)%24; let local=UT+tzH; local=((local%24)+24)%24; return local*60; };
+  const r=calc(true),s=calc(false); if(r==null||s==null) return null; return {rise:r,set:s}; }
+function campDaylight(now=new Date()){ const loc=campLocation(); const sun=campSunTimes(now,loc.lat,loc.lon)||{rise:420,set:1110}; const m=(window.CAMP_TIME_OVERRIDE!=null)?window.CAMP_TIME_OVERRIDE:now.getHours()*60+now.getMinutes();
+  const R=sun.rise,S=sun.set; const sm=x=>x<=0?0:x>=1?1:x*x*(3-2*x); let L,G,mode;
+  if(m<R-40||m>S+40){ L=0;G=0;mode='night'; } else if(m<R+50){ const x=(m-(R-40))/90; L=sm(x); G=Math.sin(x*Math.PI); mode='dawn'; } else if(m<=S-50){ L=1;G=0;mode='day'; } else { const x=(m-(S-50))/90; L=1-sm(x); G=Math.sin(x*Math.PI); mode='dusk'; }
+  const sunP=Math.max(0,Math.min(1,(m-R)/Math.max(1,S-R))); const nightLen=(1440-S)+R; const moonP=m>S?(m-S)/nightLen:m<R?(m+1440-S)/nightLen:0;
+  return {L,G,mode,sunP,moonP,rise:R,set:S,loc,minutes:m}; }
+function campClock(mins){ const t=Math.round(mins)%1440, h=Math.floor(t/60), mm=t%60; return `${h%12||12}:${String(mm).padStart(2,'0')} ${h>=12?'pm':'am'}`; }
+function campLightSummary(){ const d=campDaylight(); const src=d.loc.source==='location'?'your location':`the time-zone estimate (${d.loc.zone})`; return `Sunrise ${campClock(d.rise)} · sunset ${campClock(d.set)}, from ${src}. Right now the camp is in ${d.mode}.`; }
+function toggleCampGeo(box){ const note=()=>{ const n=document.getElementById('campLightNote'); if(n) n.textContent=campLightSummary(); if(typeof currentTab!=='undefined'&&currentTab==='today') renderToday(); };
+  if(!box.checked){ const st=getState().settings; delete st.geo; STORE.set('hr30_settings',st); note(); return; }
+  if(!navigator.geolocation){ box.checked=false; alert('This phone does not offer location to the app. The camp keeps the time-zone estimate.'); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{ const st=getState().settings; st.geo={lat:+pos.coords.latitude.toFixed(2),lon:+pos.coords.longitude.toFixed(2),at:Date.now()}; STORE.set('hr30_settings',st); note(); },()=>{ box.checked=false; alert('Location was not shared. The camp keeps the time-zone estimate.'); },{timeout:15000,maximumAge:3600000}); }
 const CAMP_W=375, CAMP_H=420;
 let campSeed=7; function crnd(){ campSeed=(campSeed*1664525+1013904223)%4294967296; return campSeed/4294967296; }
 function cRR(c,x,y,w,h,r){ r=Math.min(r,h/2,w/2); c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath(); }
@@ -120,15 +152,14 @@ function cRidgeY(pts,x){ for(let i=0;i<pts.length-3;i++){ const [x1,y1]=pts[i],[
 function campSky(c,S,LW){
   const g=c.createLinearGradient(0,0,0,CAMP_H); g.addColorStop(0,S.top); g.addColorStop(.2,S.mid); g.addColorStop(.36,S.band); g.addColorStop(.43,S.horizon); g.addColorStop(.58,S.dusk); g.addColorStop(1,'#0b100d');
   c.fillStyle=g; c.fillRect(0,0,LW,CAMP_H);
-  if(S.time==='dawn'){ const sx=LW/2+48; cGlow(c,sx,132,120,cHexA(S.sun),.55); cGlow(c,sx,132,30,cHexA('#ffffff'),.55);
-    c.save(); c.globalAlpha=.22; for(let i=0;i<14;i++){ const cx=crnd()*LW,cy=40+crnd()*90,rx=30+crnd()*50; cBlob(c,cx,cy,rx,rx*.16,'#fff4dc'); } c.restore(); }
-  else if(S.time==='afternoon'){ const sx=LW*.24; cGlow(c,sx,150,150,'rgba(255,170,70,A)',.6); cGlow(c,sx,150,34,cHexA('#fff2d0'),.8);
-    c.save(); c.globalAlpha=.28; for(let i=0;i<10;i++){ const cx=crnd()*LW,cy=30+crnd()*80,rx=40+crnd()*60; cBlob(c,cx,cy,rx,rx*.14,'#ffd9a8'); } c.restore(); }
-  else if(S.time==='overcast'){ c.save(); c.globalAlpha=.35; for(let i=0;i<22;i++){ const cx=crnd()*LW,cy=20+crnd()*140,rx=50+crnd()*80; cBlob(c,cx,cy,rx,rx*.22,i%3?'#c8ced2':'#8f989e'); } c.restore(); }
-  else { // night: stars and a moon
-    c.save(); for(let i=0;i<130;i++){ const x=crnd()*LW,y=crnd()*215,r=.5+crnd()*1.1; c.fillStyle=`rgba(255,250,235,${.3+crnd()*.65})`; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); } c.restore();
-    const mx=LW/2+92,my=84; cGlow(c,mx,my,90,'rgba(200,215,255,A)',.35); c.fillStyle='#f2f1e6'; c.beginPath(); c.arc(mx,my,13,0,7); c.fill(); c.fillStyle='rgba(120,130,150,.35)'; [[ -4,-3,3],[5,4,2.2],[2,-6,1.6]].forEach(([dx,dy,r])=>{ c.beginPath(); c.arc(mx+dx,my+dy,r,0,7); c.fill(); });
-    c.save(); c.globalAlpha=.18; for(let i=0;i<8;i++){ const cx=crnd()*LW,cy=40+crnd()*120,rx=40+crnd()*60; cBlob(c,cx,cy,rx,rx*.16,'#9fb0cc'); } c.restore(); }
+  const Lt=CAMP_LIGHT, bright=Math.max(Lt.L,Lt.G);
+  if(Lt.L<.9){ c.save(); c.globalAlpha=1-Lt.L; for(let i=0;i<130;i++){ const x=crnd()*LW,y=crnd()*215,r=.5+crnd()*1.1; c.fillStyle=`rgba(255,250,235,${.3+crnd()*.65})`; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); } c.restore(); }
+  if(Lt.L<.6&&!S.overcast){ const mp=Lt.moonP; const mx=LW*(.88-.76*mp), my=205-125*Math.sin(mp*Math.PI); c.save(); c.globalAlpha=1-Lt.L/.6; cGlow(c,mx,my,90,'rgba(200,215,255,A)',.35); c.fillStyle='#f2f1e6'; c.beginPath(); c.arc(mx,my,13,0,7); c.fill(); c.fillStyle='rgba(120,130,150,.35)'; [[-4,-3,3],[5,4,2.2],[2,-6,1.6]].forEach(([dx,dy,r])=>{ c.beginPath(); c.arc(mx+dx,my+dy,r,0,7); c.fill(); }); c.restore(); }
+  if(bright>.05){ const sp=Lt.sunP; const sx=LW*(.88-.76*sp), sy=215-140*Math.sin(sp*Math.PI);
+    if(S.overcast){ cGlow(c,sx,sy,150,'rgba(230,236,240,A)',.18*bright); }
+    else { cGlow(c,sx,sy,120+40*Lt.G,Lt.G>.3?'rgba(255,170,70,A)':cHexA(S.sun),.55*bright); cGlow(c,sx,sy,30,cHexA('#fff6dc'),.6*bright); } }
+  c.save(); if(S.overcast){ c.globalAlpha=.35; for(let i=0;i<22;i++){ const cx=crnd()*LW,cy=20+crnd()*140,rx=50+crnd()*80; cBlob(c,cx,cy,rx,rx*.22,i%3?'#c8ced2':'#8f989e'); } }
+  else { c.globalAlpha=.12+.14*Lt.L; const col=cMix(cMix('#9fb0cc','#fff4dc',Lt.L),'#ffd9a8',Lt.G); for(let i=0;i<14;i++){ const cx=crnd()*LW,cy=40+crnd()*90,rx=30+crnd()*50; cBlob(c,cx,cy,rx,rx*.16,col); } } c.restore();
 }
 function campMountains(c,LW){ const S=CAMP_ENV;
   const k=LW/375;
@@ -244,7 +275,7 @@ function paintCampScene(canvas,phase,camp){
   const cw=canvas.clientWidth||375, ch=canvas.clientHeight||CAMP_H; if(!cw||!ch) return;
   const dpr=Math.min(window.devicePixelRatio||1,2); canvas.width=Math.round(cw*dpr); canvas.height=Math.round(ch*dpr);
   const c=canvas.getContext('2d'); const s=ch/CAMP_H, LW=cw/s; c.setTransform(dpr*s,0,0,dpr*s,0,0);
-  campSeed=7; const S=CAMP_SKY[phase]||CAMP_SKY.none; CAMP_ENV=S; const ox=Math.max(0,(LW-CAMP_W)/2);
+  campSeed=7; CAMP_LIGHT=campDaylight(); const S=campEnvNow(phase); CAMP_ENV=S; campLightKey=CAMP_LIGHT.mode+Math.round(CAMP_LIGHT.L*20)+':'+Math.round(CAMP_LIGHT.G*20); const ox=Math.max(0,(LW-CAMP_W)/2);
   campSky(c,S,LW); campMountains(c,LW); campGround(c,LW,ox);
   c.save(); c.translate(ox,0);
   campBigPine(c); campTrail(c,camp.trail); campLadder(c,camp.rungs,camp.platform);
@@ -252,10 +283,10 @@ function paintCampScene(canvas,phase,camp){
   campRange(c,camp.range); campCabin(c,camp.logs,camp.roof,camp.extras); campWoodpile(c,camp.woodRows); if(camp.cache) campCrate(c,344,camp.woodRows>=3?306:320,22,12);
   campCairn(c,camp.stones); if(camp.lantern) campLantern(c,160,346); campFire(c,camp.fire); campHunter(c,camp.fire);
   if(camp.fire>0){ c.save(); c.globalCompositeOperation='lighter'; const g=c.createRadialGradient(185,350,4,185,350,camp.fire===1?70:110); g.addColorStop(0,`rgba(255,140,50,${camp.fire===1?.35:.5})`); g.addColorStop(1,'rgba(255,140,50,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(185,352,camp.fire===1?80:120,camp.fire===1?26:36,0,0,7); c.fill(); c.restore(); }
-  if(S.night&&camp.fire>0){ c.save(); c.translate(ox,0); cGlow(c,185,336,150,'rgba(255,150,60,A)',camp.fire===1?.22:.38); c.restore(); }
+  if(S.dark>.2&&camp.fire>0){ c.save(); c.translate(ox,0); cGlow(c,185,336,150,'rgba(255,150,60,A)',(camp.fire===1?.22:.38)*S.dark); c.restore(); }
   c.restore();
   campSeed=99; campWeather(c,LW,ox,S,camp);
-  const v=c.createRadialGradient(LW/2,150,80,LW/2,220,Math.max(330,LW*.9)); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,S.night?'rgba(0,0,0,.65)':'rgba(0,0,0,.5)'); c.fillStyle=v; c.fillRect(0,0,LW,CAMP_H);
+  const v=c.createRadialGradient(LW/2,150,80,LW/2,220,Math.max(330,LW*.9)); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,`rgba(0,0,0,${.5+.15*S.dark})`); c.fillStyle=v; c.fillRect(0,0,LW,CAMP_H);
   const b=c.createLinearGradient(0,330,0,420); b.addColorStop(0,'rgba(11,16,13,0)'); b.addColorStop(1,'rgba(11,16,13,1)'); c.fillStyle=b; c.fillRect(0,330,LW,90);
 }
 function paintCampPiece(canvas){ const c=canvas.getContext('2d'); c.setTransform(2,0,0,2,0,0); c.clearRect(0,0,64,64); campSeed=3;
@@ -318,4 +349,6 @@ function paintCampCanvases(){
       STORE.set(CAMP_SEEN_KEY,campSnapshot(next)); }catch(e){ console.warn('camp paint',e); } }
   document.querySelectorAll('canvas.piece').forEach(p=>{ try{ paintCampPiece(p); }catch(e){} });
 }
+let campLightKey='';
+setInterval(()=>{ try{ const cv=document.getElementById('campCanvas'); if(!cv||campAnim) return; const d=campDaylight(); const key=d.mode+Math.round(d.L*20)+':'+Math.round(d.G*20); if(key!==campLightKey) paintCampScene(cv,huntPlan()?.phase||'none',campState()); }catch(e){} },60000);
 let campResizeT=null; window.addEventListener('resize',()=>{ clearTimeout(campResizeT); campResizeT=setTimeout(()=>{ if(document.getElementById('campCanvas')) paintCampCanvases(); },150); });
