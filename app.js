@@ -1,4 +1,4 @@
-const APP_VERSION = "5.10.0-full";
+const APP_VERSION = "5.10.1-full";
 const PROGRAM = {
   Monday:{title:"Lower Body Strength",focus:"Legs • hills • pack carrying",duration:30,exercises:[
     {name:"Warm-up",prescription:"5 min",type:"time",minutes:5,rest:0,notes:"Bodyweight squat, hip hinge, reverse lunge, calf raise, marching."},
@@ -898,6 +898,7 @@ function startGuideMarkup(){ const installed=isInstalled(), ios=isIOS();
     <li><strong>Every morning, do the readiness check first.</strong> Thirty seconds. On a rough day the app trims the workout for you. That's the point.</li>
     <li><strong>Tap Start Workout and log as you go.</strong> Weights, reps, and timers are on screen. The rest timer beeps at 3-2-1.</li>
     <li><strong>Every session builds your camp.</strong> The scene on Today is yours. Leg days cut the trail and hang the stand, rows and presses raise the cabin, rucks stack the woodpile, Friday's circuit keeps the fire lit, and three sessions in a week add a memorial stone. Nothing is ever torn down.</li>
+    <li><strong>The camp keeps real time.</strong> Dark before sunrise, golden at dusk, snow or rain as your hunt gets close. Sunrise and sunset are estimated from your phone's time zone, no permission needed. For exact times, open Settings → Camp light and turn on <em>Use my location</em>. Your location stays on your phone and is never sent anywhere.</li>
     <li><strong>Learn the movement before you load it.</strong> Every exercise has a drawing, cues, and a short video under Learn or the "How to do it" link.</li>
     <li><strong>Export a backup once a week.</strong> Settings → Export Complete Backup. Your data lives only on this phone; deleting the app deletes it.</li>
     <li><strong>Archery Lab and Weapon Profile are optional.</strong> Photograph your target and the AI measures the group; film a shot and it reviews your form.</li>

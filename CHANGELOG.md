@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.10.1
+
+- Start guide explains the camp's real-time light and the optional location switch in Settings → Camp light.
+
 # HUNT READY 30 — Full Build 5.10.0
 
 ## Real time of day
