@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.8.2
+
+- Build animation. When a session adds a piece to the camp, Today paints the camp as it was, then the new log, rung, stone, or row drops into place with a glow and a burst of sparks. A newly lit fire flares up from the ring. Turned off automatically when the phone's Reduce Motion setting is on.
+
 # HUNT READY 30 — Full Build 5.8.1
 
 - A hunter now sits at the fire on a log, back to you, bow leaning beside him. He is there from day one, lit by the fire once it is burning.
