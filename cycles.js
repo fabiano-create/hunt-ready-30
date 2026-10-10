@@ -85,36 +85,52 @@ const BENCHMARK_CYCLE={ key:'benchmark', title:'Benchmark', blurb:'Five test day
   ]
 }};
 
+// ---------- Ruck track: 18 rucks over six weeks, three a week ----------
+const RUCK_TRACK={ key:'ruck', title:'Ruck Track', blurb:'Eighteen rucks over six weeks, three a week: one steady, one on hills, one long. Load climbs from 10 to 30 lb and never past 20% of your body weight. Run it beside the program or on its own.' };
+const RUCK_PLAN={ load:[10,15,20,20,25,30], steady:[20,25,30,30,35,40], hills:[20,24,24,28,30,30], long:[30,35,40,45,50,60], reps:[4,5,5,6,6,6] };
+function ruckTrackDays(){ const days=[]; const warm={name:'Warm-up',prescription:'3 min',type:'time',minutes:3,rest:0,notes:'Walk easy for three minutes with the pack on. Then cinch the hip belt, snug the shoulder straps, nothing swinging.'};
+  const cool={name:'Mobility',prescription:'5 min',type:'time',minutes:5,rest:0,notes:'Pack off. Calves, ankles, hips, hamstrings. Thirty seconds each. Check your feet for hot spots.'};
+  for(let n=1;n<=18;n++){ const w=Math.ceil(n/3), slot=(n-1)%3, i=w-1, load=RUCK_PLAN.load[i]; let title,focus,main;
+    if(slot===0){ const m=RUCK_PLAN.steady[i]; title='Steady'; focus=`${m} min · ${load} lb · flat`; main={name:'Weighted Walk / Ruck',prescription:`${m} min · ${load} lb`,type:'ruck',minutes:m,load,rest:0,notes:`Flat or rolling ground at a pace you could talk through. ${load} lb, or 20% of your body weight if that is less. Log the distance if you know it.`}; }
+    else if(slot===1){ const m=RUCK_PLAN.hills[i], r=RUCK_PLAN.reps[i]; title='Hills'; focus=`${m} min · ${load} lb · ${r} climbs`; main={name:'Weighted Walk / Ruck',prescription:`${m} min · ${load} lb · ${r} × 2 min up`,type:'ruck',minutes:m,load,rest:0,notes:`After 4 easy minutes: ${r} rounds of 2 minutes hard uphill, 2 minutes easy down or flat. No hill? Stairs, a parking garage, or a treadmill at 8–12% incline. Short quick steps on the way up.`}; }
+    else { const m=RUCK_PLAN.long[i]; const test=n===18; title=test?'5k ruck test':'Long'; focus=test?`3.1 miles for time · ${load} lb`:`${m} min · ${load} lb · long`; main=test?{name:'Weighted Walk / Ruck',prescription:`3.1 mi for time · ${load} lb`,type:'ruck',minutes:m,load,rest:0,notes:'Three point one miles as fast as you can walk it with the pack on. No running. Log the minutes and the load. This is the number you bring back next time.'}:{name:'Weighted Walk / Ruck',prescription:`${m} min · ${load} lb`,type:'ruck',minutes:m,load,rest:0,notes:`The long one. Steady pace, hills if you have them, water on the pack. ${m} minutes is the goal; stop early if a foot or a knee says so and log what you did.`}; }
+    days.push({n,title,focus,week:w,duration:main.minutes+8,exercises:[warm,main,cool]}); }
+  return days; }
+
 // ---------- state ----------
-function cycleState(){ const s=STORE.get('hr30_cycles',null)||{}; s.starthere=s.starthere||{}; s.benchmark=s.benchmark||{}; s.benchmark.current=s.benchmark.current||{}; s.benchmark.runs=s.benchmark.runs||[]; return s; }
+function cycleState(){ const s=STORE.get('hr30_cycles',null)||{}; s.starthere=s.starthere||{}; s.ruck=s.ruck||{}; s.benchmark=s.benchmark||{}; s.benchmark.current=s.benchmark.current||{}; s.benchmark.runs=s.benchmark.runs||[]; return s; }
 function saveCycleState(s){ STORE.set('hr30_cycles',s); }
 function cycleModeKey(){ const m=equipmentMode(); return m==='gym'?'gym':m==='bodyweight'?'bodyweight':'dumbbells'; }
+function cycleDef(kind){ return kind==='starthere'?START_HERE:kind==='ruck'?RUCK_TRACK:BENCHMARK_CYCLE; }
+function cycleLength(kind){ return kind==='ruck'?18:5; }
 function cycleDays(kind){ const mode=equipmentMode();
+  if(kind==='ruck') return ruckTrackDays();
   if(kind==='starthere') return START_HERE.days.map(d=>{ const ex=typeof d.exercises==='function'?d.exercises():d.exercises; return {...d,exercises:ex.map(e=>d.raw?{...e}:{...substituteExercise(e,mode)})}; });
   return BENCHMARK_CYCLE.days[cycleModeKey()].map(d=>({...d,exercises:(typeof d.exercises==='function'?d.exercises():d.exercises).map(e=>({...e}))})); }
-function cycleDone(kind){ const s=cycleState(); return kind==='starthere'?s.starthere:s.benchmark.current; }
-function cycleProgress(kind){ const done=cycleDone(kind); return [1,2,3,4,5].filter(n=>done[n]).length; }
+function cycleDone(kind){ const s=cycleState(); return kind==='starthere'?s.starthere:kind==='ruck'?s.ruck:s.benchmark.current; }
+function cycleProgress(kind){ const done=cycleDone(kind); let c=0; for(let n=1;n<=cycleLength(kind);n++) if(done[n]) c++; return c; }
 
 // ---------- UI ----------
-function openCycle(kind){ const def=kind==='starthere'?START_HERE:BENCHMARK_CYCLE; const days=cycleDays(kind); const s=cycleState(); const done=cycleDone(kind); const next=[1,2,3,4,5].find(n=>!done[n]); const runs=s.benchmark.runs; const lastRun=kind==='benchmark'&&runs.length?runs[runs.length-1]:null;
-  openModal(`<div class="close-row"><div><div class="kicker">${kind==='starthere'?'Orientation':'Test cycle'} · ${modeLabel(equipmentMode())}</div><h2>${def.title}</h2><p class="note" style="margin-top:6px">${def.blurb}</p></div><button class="icon-btn" onclick="closeModal()">×</button></div>
+function openCycle(kind){ const def=cycleDef(kind); const days=cycleDays(kind); const s=cycleState(); const done=cycleDone(kind); let next=null; for(let n=1;n<=cycleLength(kind);n++){ if(!done[n]){ next=n; break; } } const runs=s.benchmark.runs; const lastRun=kind==='benchmark'&&runs.length?runs[runs.length-1]:null;
+  openModal(`<div class="close-row"><div><div class="kicker">${kind==='starthere'?'Orientation':kind==='ruck'?'Add-on track · any equipment':'Test cycle'}${kind==='ruck'?'':' · '+modeLabel(equipmentMode())}</div><h2>${def.title}</h2><p class="note" style="margin-top:6px">${def.blurb}</p></div><button class="icon-btn" onclick="closeModal()">×</button></div>
     ${lastRun?`<div class="notice" style="margin-bottom:12px">Last full cycle finished ${new Date(lastRun.completed).toLocaleDateString()}. Results live on the Progress tab.</div>`:''}
-    <section class="card flat">${days.map(d=>`<div class="weight-row"><div><strong>${d.n} · ${esc(d.title)}</strong><small>${esc(d.focus)}${done[d.n]?` · done ${new Date(done[d.n]).toLocaleDateString()}`:''}</small></div><button class="${d.n===next?'primary':'secondary'}" style="width:auto;margin:0;padding:10px 14px;white-space:nowrap" onclick="startCycleDay('${kind}',${d.n})">${done[d.n]?'AGAIN':'START'}</button></div>`).join('')}</section>
+    <section class="card flat">${days.map(d=>`${d.week&&(d.n-1)%3===0?`<div class="kicker" style="margin:${d.n===1?0:14}px 0 4px">Week ${d.week} · ${RUCK_PLAN.load[d.week-1]} lb</div>`:''}<div class="weight-row"><div><strong>${d.n} · ${esc(d.title)}</strong><small>${esc(d.focus)}${done[d.n]?` · done ${new Date(done[d.n]).toLocaleDateString()}`:''}</small></div><button class="${d.n===next?'primary':'secondary'}" style="width:auto;margin:0;padding:10px 14px;white-space:nowrap" onclick="startCycleDay('${kind}',${d.n})">${done[d.n]?'AGAIN':'START'}</button></div>`).join('')}</section>
     ${next?'':`<button class="secondary" style="width:100%;margin-top:14px" onclick="resetCycle('${kind}')">${kind==='benchmark'?'START A NEW CYCLE':'RUN IT AGAIN'}</button>`}`); }
-function startCycleDay(kind,n){ const def=kind==='starthere'?START_HERE:BENCHMARK_CYCLE; const d=cycleDays(kind).find(x=>x.n===n); if(!d) return;
-  const w={title:`${def.title} ${n} · ${d.title}`,focus:d.focus,duration:d.duration||30,exercises:d.exercises,mode:equipmentMode()};
+function startCycleDay(kind,n){ const def=cycleDef(kind); const d=cycleDays(kind).find(x=>x.n===n); if(!d) return;
+  const w={title:kind==='ruck'?`Ruck ${n} · ${d.title} · week ${d.week}`:`${def.title} ${n} · ${d.title}`,focus:d.focus,duration:d.duration||30,exercises:d.exercises,mode:equipmentMode()};
   Alerts.unlock(); active={day:def.title,workout:w,index:0,set:1,logs:[],started:Date.now(),historyStack:[],mode:'workout',block:null,cycle:kind,cycleDay:n};
   openModal(workoutModal()); clearInterval(workoutTimer); workoutTimer=setInterval(tickTimers,500); }
 function finishCycleDay(kind,n,entry){ const s=cycleState(); const now=new Date().toISOString();
   if(kind==='starthere'){ s.starthere[n]=now; }
+  else if(kind==='ruck'){ s.ruck[n]=now; }
   else { s.benchmark.current[n]=now; s.benchmark.current.results=s.benchmark.current.results||{}; const b=getState().benchmarks, dates=STORE.get('hr30_benchDates',{});
     (entry.logs||[]).forEach(l=>{ if(l.type==='bench'&&l.benchId&&l.value>0){ b[l.benchId]=l.value; dates[l.benchId]=now; s.benchmark.current.results[l.benchId]=l.value; } });
     STORE.set('hr30_benchmarks',b); STORE.set('hr30_benchDates',dates);
     if([1,2,3,4,5].every(k=>s.benchmark.current[k])){ s.benchmark.runs.push({completed:now,mode:cycleModeKey(),results:s.benchmark.current.results}); s.benchmark.current={}; } }
   saveCycleState(s); }
-function resetCycle(kind){ const s=cycleState(); if(kind==='starthere') s.starthere={}; else s.benchmark.current={}; saveCycleState(s); openCycle(kind); }
-function cyclesMarkup(){ const s=cycleState(); const sh=cycleProgress('starthere'), bm=cycleProgress('benchmark'); const runs=s.benchmark.runs; const lastRun=runs.length?runs[runs.length-1]:null;
-  return `<div class="section-title" style="margin-top:0"><h3>Cycles</h3><small>orientation · testing</small></div><div class="day-grid" style="margin-bottom:18px"><div class="day-card ${sh<5?'today':''}"><div class="kicker">Start Here</div><h4>${sh>=5?'Complete':`${sh} of 5 done`}</h4><p>Five short sessions. Learn the patterns and find your loads.</p><button class="ghost" onclick="openCycle('starthere')">${sh>=5?'Run again →':sh?'Continue →':'Begin →'}</button></div><div class="day-card"><div class="kicker">Benchmark</div><h4>${bm?`${bm} of 5 done`:lastRun?`Last: ${new Date(lastRun.completed).toLocaleDateString()}`:'Not yet run'}</h4><p>Five test days. Run it at the start and the end of a block.</p><button class="ghost" onclick="openCycle('benchmark')">${bm?'Continue →':'Run →'}</button></div></div>`; }
+function resetCycle(kind){ const s=cycleState(); if(kind==='starthere') s.starthere={}; else if(kind==='ruck') s.ruck={}; else s.benchmark.current={}; saveCycleState(s); openCycle(kind); }
+function cyclesMarkup(){ const s=cycleState(); const sh=cycleProgress('starthere'), bm=cycleProgress('benchmark'), rk=cycleProgress('ruck'); const runs=s.benchmark.runs; const lastRun=runs.length?runs[runs.length-1]:null;
+  return `<div class="section-title" style="margin-top:0"><h3>Cycles</h3><small>orientation · testing · add-ons</small></div><div class="day-grid" style="margin-bottom:18px"><div class="day-card ${sh<5?'today':''}"><div class="kicker">Start Here</div><h4>${sh>=5?'Complete':`${sh} of 5 done`}</h4><p>Five short sessions. Learn the patterns and find your loads.</p><button class="ghost" onclick="openCycle('starthere')">${sh>=5?'Run again →':sh?'Continue →':'Begin →'}</button></div><div class="day-card"><div class="kicker">Benchmark</div><h4>${bm?`${bm} of 5 done`:lastRun?`Last: ${new Date(lastRun.completed).toLocaleDateString()}`:'Not yet run'}</h4><p>Five test days. Run it at the start and the end of a block.</p><button class="ghost" onclick="openCycle('benchmark')">${bm?'Continue →':'Run →'}</button></div><div class="day-card"><div class="kicker">Ruck Track</div><h4>${rk>=18?'Complete':rk?`${rk} of 18 done`:'Six weeks · 18 rucks'}</h4><p>Steady, hills, long. Load climbs 10 to 30 lb. Runs beside the program.</p><button class="ghost" onclick="openCycle('ruck')">${rk>=18?'Run again →':rk?'Continue →':'Begin →'}</button></div></div>`; }
 function startHereNudge(){ if(cycleProgress('starthere')>=5||getState().history.length>=5||localStorage.hr30_hideStartHere) return ''; const n=cycleProgress('starthere');
   return `<section class="card prime"><div class="kicker"><span class="led"></span>New here</div><h3 style="margin:6px 0 4px">Start Here · ${n?`day ${n+1} of 5`:'five short sessions'}</h3><p class="sub">Learn the patterns, find your loads, fit your pack, run one easy circuit. Then the week is yours.</p><div style="display:flex;gap:10px;margin-top:12px"><button class="primary" style="margin:0" onclick="openCycle('starthere')">${n?'CONTINUE':'BEGIN'}</button><button class="secondary" onclick="localStorage.hr30_hideStartHere=1;renderToday()">SKIP</button></div></section>`; }
 function benchmarkStatusLine(){ const s=cycleState(); const runs=s.benchmark.runs; const cur=cycleProgress('benchmark'); if(cur) return `Benchmark cycle in progress · ${cur} of 5 days done.`;

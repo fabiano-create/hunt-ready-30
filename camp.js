@@ -6,7 +6,7 @@ function campWeekKey(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setH
 function campState(){
   const s=getState(), h=s.history||[];
   const byDay=d=>h.filter(x=>x.day===d).length;
-  const legs=byDay('Monday'), upper=byDay('Tuesday')+byDay('Thursday'), rucks=byDay('Wednesday')+byDay('Saturday');
+  const legs=byDay('Monday'), upper=byDay('Tuesday')+byDay('Thursday'), rucks=byDay('Wednesday')+byDay('Saturday')+byDay('Ruck Track');
   const fridayDates=h.filter(x=>x.day==='Friday').map(x=>+new Date(x.date));
   const lastFri=fridayDates.length?Math.max(...fridayDates):0; const daysSinceFire=lastFri?(Date.now()-lastFri)/864e5:Infinity;
   const fire=daysSinceFire<=8?2:daysSinceFire<=15?1:0;
@@ -27,7 +27,7 @@ function campBuildsFor(day,c){
   switch(day){
     case 'Monday': return c.legs<5?['trail',`Lower Body Strength cuts trail section ${c.legs+1} of 5.`]:c.legs<11?['rung',`Lower Body Strength adds ladder rung ${c.legs-4} of 6.`]:c.legs<12?['stand',`Lower Body Strength hangs the stand platform.`]:['stand','Lower Body Strength keeps the trail open.'];
     case 'Tuesday': case 'Thursday': return c.upper<8?['log',`${day==='Tuesday'?'Archery Upper Body':'Full-Body Strength'} lays cabin log ${c.upper+1} of 8.`]:c.upper<9?['roof',`${day==='Tuesday'?'Archery Upper Body':'Full-Body Strength'} puts the roof on the cabin.`]:c.upper<12?['roof',`${day==='Tuesday'?'Archery Upper Body':'Full-Body Strength'} finishes the roof, ${12-c.upper} to go before the antlers go up.`]:['banner','Rows and presses keep the cabin tight.'];
-    case 'Wednesday': case 'Saturday': return c.rucks<8?['wood',`${day==='Wednesday'?'Ruck Day':'Easy Outdoor Day'} stacks the woodpile, ${c.rucks+1} of 8 loads.`]:c.rucks<12?['wood',`${day==='Wednesday'?'Ruck Day':'Easy Outdoor Day'} packs the cache, ${c.rucks+1} of 12.`]:['wood','Rucks keep the cache stocked.'];
+    case 'Wednesday': case 'Saturday': case 'Ruck Track': { const lbl={Wednesday:'Ruck Day',Saturday:'Easy Outdoor Day','Ruck Track':'The ruck track'}[day]; return c.rucks<8?['wood',`${lbl} stacks the woodpile, ${c.rucks+1} of 8 loads.`]:c.rucks<12?['wood',`${lbl} packs the cache, ${c.rucks+1} of 12.`]:['wood','Rucks keep the cache stocked.']; }
     case 'Friday': return ['fire','Hunter Conditioning feeds the fire for the week.'];
     default: return ['stone', c.thisWeek>=3?'Rest kept. The week is already in the stones.':'Rest day. Three sessions this week add a memorial stone.'];
   }
@@ -36,7 +36,7 @@ function campBuiltPiece(day,c){ // what today's finished session added (state al
   switch(day){
     case 'Monday': return c.legs<=5?['trail',`Trail · section ${c.legs} of 5`,'Leg day cut the trail toward the stand.']:c.legs<=11?['rung',`Ladder · rung ${c.legs-5} of 6`,'Leg day put another rung on the stand ladder.']:c.legs===12?['stand','Stand platform · hung','Twelve leg days. The stand is up.']:['stand','Trail · kept open','The legs that carry you in are ready.'];
     case 'Tuesday': case 'Thursday': return c.upper<=8?['log',`Cabin wall · log ${c.upper} of 8`,`Rows and presses raised it. ${8-c.upper>0?`${8-c.upper} more and the roof goes on.`:'Next session puts the roof on.'}`]:c.upper<=11?['roof',`Roof · ${c.upper-8} of 3 courses`,'Wood shakes going on. Antlers go up when the roof is done.']:c.upper===12?['banner','Antlers and banner · up','The cabin is finished. Your mark is on the door.']:['log','Cabin · kept tight','Another log on the pile behind the cabin.'];
-    case 'Wednesday': case 'Saturday': return c.rucks<=8?['wood',`Woodpile · load ${c.rucks} of 8`,'Pack weight stacked the pile.']:c.rucks<=12?['wood',`Cache · ${c.rucks-8} of 4 crates`,'Supplies packed in on your back.']:['wood','Cache · stocked','The camp eats because you carried it.'];
+    case 'Wednesday': case 'Saturday': case 'Ruck Track': return c.rucks<=8?['wood',`Woodpile · load ${c.rucks} of 8`,'Pack weight stacked the pile.']:c.rucks<=12?['wood',`Cache · ${c.rucks-8} of 4 crates`,'Supplies packed in on your back.']:['wood','Cache · stocked','The camp eats because you carried it.'];
     case 'Friday': return ['fire','Fire · lit for the week','The circuit keeps the fire burning. Miss two Fridays and it burns low.'];
     case 'Start Here': return ['fire','Start Here · day logged','The fire is lit. The camp starts here.'];
     case 'Benchmark': return ['stone','Benchmark · recorded','Numbers in the book. Run it again at the end of the block.'];

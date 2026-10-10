@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 5.12.0
+
+## Ruck Track
+- An add-on track under Train → Cycles: eighteen rucks over six weeks, three a week. One steady, one on hills with timed climbs, one long. Load climbs from 10 lb to 30 lb and the app says to cap it at 20% of body weight. Week six ends with a 5k ruck for time.
+- Works with any equipment mode and runs beside the weekly program or on its own. Each session prefills the prescribed load.
+- Ruck Track sessions stack the camp woodpile and cache the same way Wednesday and Saturday rucks do.
+
 # HUNT READY 30 — Full Build 5.11.0
 
 ## Start Here and the Benchmark cycle
