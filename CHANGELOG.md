@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.12.2
+
+- Shorter Done card on Today: the session name with its numbers on one line, the piece you built, the commendation verse, and a single link to the Training tab. Details, edit, train again, and the progression note now live on the Training tab's Done card.
+
 # HUNT READY 30 — Full Build 5.12.1
 
 ## A cleaner Today
