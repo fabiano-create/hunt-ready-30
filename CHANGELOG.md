@@ -1,3 +1,10 @@
+# HUNT READY 30 — Full Build 5.12.1
+
+## A cleaner Today
+- Today now holds the camp, the Scripture, the Camp card, the readiness check, the hunt countdown, one compact Today's Training block, and the Field tools. Nothing else.
+- The training block shows the session name, focus, movement count, minutes, and equipment, with Start Workout and a link to the Training tab. New users get a "Start Here" link inside it instead of a separate card.
+- The Training tab is now sectioned: Today (the full session with every movement and the one-day equipment switch), This week, Training block (with the new-block notice), and Cycles & tracks. Start Here, Benchmark, and the Ruck Track each explain what they are and when to run them.
+
 # HUNT READY 30 — Full Build 5.12.0
 
 ## Ruck Track
