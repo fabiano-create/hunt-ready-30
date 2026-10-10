@@ -38,6 +38,8 @@ function campBuiltPiece(day,c){ // what today's finished session added (state al
     case 'Tuesday': case 'Thursday': return c.upper<=8?['log',`Cabin wall · log ${c.upper} of 8`,`Rows and presses raised it. ${8-c.upper>0?`${8-c.upper} more and the roof goes on.`:'Next session puts the roof on.'}`]:c.upper<=11?['roof',`Roof · ${c.upper-8} of 3 courses`,'Wood shakes going on. Antlers go up when the roof is done.']:c.upper===12?['banner','Antlers and banner · up','The cabin is finished. Your mark is on the door.']:['log','Cabin · kept tight','Another log on the pile behind the cabin.'];
     case 'Wednesday': case 'Saturday': return c.rucks<=8?['wood',`Woodpile · load ${c.rucks} of 8`,'Pack weight stacked the pile.']:c.rucks<=12?['wood',`Cache · ${c.rucks-8} of 4 crates`,'Supplies packed in on your back.']:['wood','Cache · stocked','The camp eats because you carried it.'];
     case 'Friday': return ['fire','Fire · lit for the week','The circuit keeps the fire burning. Miss two Fridays and it burns low.'];
+    case 'Start Here': return ['fire','Start Here · day logged','The fire is lit. The camp starts here.'];
+    case 'Benchmark': return ['stone','Benchmark · recorded','Numbers in the book. Run it again at the end of the block.'];
     default: return ['stone','Rest · kept','Recovery is stewardship. The camp holds.'];
   }
 }
@@ -60,10 +62,10 @@ function campCard(c){
     ['range','Range', c.range===0?'Archery · not started':c.range===1?`Archery · target butt set · ${c.archery} logged`:c.range===2?`Archery · bow rack up · ${c.archery} logged`:c.tight?'Archery · group under 3 in.':'Archery · arrows flying', c.range,3,'on'],
     ['stones','Memorial stones', c.stones?`${c.stones} week${c.stones===1?'':'s'} kept · 3 sessions a week`:'3 sessions in a week · 0 kept', Math.min(12,c.stones),12,'teal']];
   const [ , nextText]=campBuildsFor(dayName(),c);
-  const done=todaysSessions().length>0;
+  const todaySess=todaysSessions()[0]; const done=!!todaySess;
   return `<section class="card camp-card"><div class="camp-head"><div><div class="kicker">Your camp · ${planLabel()} · ${(CAMP_SKY[huntPlan()?.phase||'none']||CAMP_SKY.none).label} · ${campDaylight().mode}</div><h2>${campStageWord(c)}</h2></div><div class="camp-stat"><strong>${c.sessions}</strong><span>sessions</span></div></div>
     <div class="build-list">${rows.map(r=>`<div class="build ${r[3]===0?'dim':''}">${ICON[r[0]]}<div><b>${r[1]}</b><small>${r[2]}</small></div>${ticks(r[3],r[4],r[5])}</div>`).join('')}</div>
-    <div class="notice camp-next"><b>${done?'Built today':'Today builds'}</b>${done?campBuiltPiece(dayName(),c)[1]:nextText}</div></section>`;
+    <div class="notice camp-next"><b>${done?'Built today':'Today builds'}</b>${done?campBuiltPiece(todaySess.day||dayName(),c)[1]:nextText}</div></section>`;
 }
 function campBuiltMarkup(day){ const c=campState(); const [piece,title,sub]=campBuiltPiece(day,c); return `<div class="built"><canvas class="piece" data-piece="${piece}" width="128" height="128"></canvas><div><div class="kicker" style="color:var(--gold)">Built today</div><b>${title}</b><small>${sub}</small></div></div>`; }
 

@@ -1,3 +1,11 @@
+# HUNT READY 30 — Full Build 5.11.0
+
+## Start Here and the Benchmark cycle
+- Start Here: five short orientation sessions under Train → Cycles. Day 1 teaches the five patterns with bodyweight. Days 2 and 3 find your working loads for the lower and upper lifts. Day 4 fits the pack on an easy 20-minute ruck. Day 5 runs a 12-minute easy version of the Friday circuit. New users get a Start Here card on Today and a button at the end of setup.
+- Benchmark cycle: five test days, one per capacity: lower, upper, carry and core, ruck, and the 20-minute circuit. Every result writes straight to the benchmarks on the Progress tab, with a date. Finish all five and the run is saved; run it again at the end of a block and Progress tells you how many numbers went up.
+- Both cycles follow your equipment mode. Gym tests are trap-bar, back squat, bench, pull-ups, farmer handles, plank, and the stair climber. Bodyweight tests use the ladders, table rows, the backpack carry, and the ruck.
+- A new benchmark, the 20-minute circuit, is tracked for every mode.
+
 # HUNT READY 30 — Full Build 5.10.1
 
 - Start guide explains the camp's real-time light and the optional location switch in Settings → Camp light.
