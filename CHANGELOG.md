@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.14.1
+
+- The weigh-in box on Today now matches the app's dark inputs (it was a white box with light text on iPhone, unreadable before and after typing).
+
 # HUNT READY 30 — Full Build 5.14.0
 
 - Third plan, "Hunter program + 15K run/walk": Monday and Wednesday run/walk, Tuesday Lower Body Strength and Thursday Archery Upper Body from the hunter program at two working sets, Friday 20-minute circuit, Saturday long run/walk, Sunday ruck. Blocks, equipment modes, and the camp all still apply. Picking a plan in Settings fills the week; any day can be changed after.
