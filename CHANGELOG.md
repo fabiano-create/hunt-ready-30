@@ -1,3 +1,8 @@
+# HUNT READY 30 — Full Build 5.14.0
+
+- Third plan, "Hunter program + 15K run/walk": Monday and Wednesday run/walk, Tuesday Lower Body Strength and Thursday Archery Upper Body from the hunter program at two working sets, Friday 20-minute circuit, Saturday long run/walk, Sunday ruck. Blocks, equipment modes, and the camp all still apply. Picking a plan in Settings fills the week; any day can be changed after.
+- Supplements: investigational items can now carry the amount, unit, and days you decided on, and "Taking" puts them on the daily checklist. The app still never suggests, adjusts, or combines a dose.
+
 # HUNT READY 30 — Full Build 5.13.1
 
 - Archery Lab: AI Measure Group is now the gold Step 1 button and Save Session is Step 2 in grey until the AI read lands, then Save turns gold and scrolls into view. No more saving before measuring.
