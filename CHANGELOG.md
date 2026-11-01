@@ -1,3 +1,7 @@
+# HUNT READY 30 — Full Build 5.13.1
+
+- Archery Lab: AI Measure Group is now the gold Step 1 button and Save Session is Step 2 in grey until the AI read lands, then Save turns gold and scrolls into view. No more saving before measuring.
+
 # HUNT READY 30 — Full Build 5.13.0
 
 ## 15K run/walk plan (Settings → Plan)
