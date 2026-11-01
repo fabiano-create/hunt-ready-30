@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "seed_date": "2026-11-01",
+  "app": "Hunt Ready 30",
+  "import_mode": "merge_with_user_confirmation_no_overwrite",
+  "profile": {
+    "height_inches": 72,
+    "starting_weight_lb_approx": 250,
+    "goal_weight_lb": 225,
+    "weight_loss_goal_lb_per_week_range": [1, 1.5],
+    "goals": ["15K race readiness", "bowhunting fitness", "preserve muscle and strength", "healthy active father"],
+    "race": {"distance_km": 15, "target_window": "January-February 2027", "exact_date": null, "goal_mode": "complete safely, run-walk acceptable"},
+    "running_baseline_continuous_miles_range": [0.25, 0.5],
+    "equipment": {"adjustable_dumbbells_max_lb_each": 52.5, "bow": "Bear Adapt 2 HP RTH+", "bow_draw_length_inches": 29, "bow_draw_weight_lb": 70},
+    "exercise_cautions": ["prior shoulder/labrum injury", "prior neck-to-arm nerve symptoms"]
+  },
+  "nutrition": {
+    "estimated_calories_daily_initial": 2400,
+    "protein_target_g_daily_initial": 190,
+    "estimated_carbs_g_daily": 180,
+    "estimated_fat_g_daily": 102,
+    "all_targets_editable": true,
+    "meals": [
+      {"time": "11:00", "slot": "protein_shake_1"},
+      {"time": "13:30", "slot": "lunch"},
+      {"time": "16:00", "slot": "protein_shake_2"},
+      {"time": "19:00", "slot": "dinner"}
+    ],
+    "protein_powder": "already owned, single-ingredient grass-fed; brand and label macros unspecified",
+    "preferred_stores": ["Trader Joe's", "Wild Fork", "Sprouts", "Publix"],
+    "preferred_foods": ["eggs", "ground beef", "chicken breast", "chicken thighs", "Trader Joe's chicken sausage", "Trader Joe's chicken meatballs", "cottage cheese", "yogurt", "cheese", "plain frozen cut sweet potatoes", "green beans", "avocado", "sourdough bread", "occasional ravioli", "olive oil", "avocado oil", "butter"],
+    "avoid_substitution": "Do not substitute oily sweet potato fries for plain cut frozen sweet potatoes",
+    "three_day_meal_prep": {"main_meals": 6, "sweet_potatoes_total_g_range": [900, 1200], "green_beans_total_g_approx": 750, "protein_portions": "adjust to target"}
+  },
+  "training_week_1": [
+    {"day": "Monday", "type": "run_walk", "warmup_walk_min": 5, "repeats": 8, "jog_sec": 60, "walk_sec": 120, "cooldown_walk_min": 5, "intensity": "conversational"},
+    {"day": "Tuesday", "type": "strength_A", "duration_min_range": [30,40], "exercises": ["goblet squat", "dumbbell Romanian deadlift", "supported row", "core"], "starting_work_sets_per_exercise_typical": 2, "rpe_target_range": [6,7]},
+    {"day": "Wednesday", "type": "run_walk", "warmup_walk_min": 5, "repeats": 8, "jog_sec": 60, "walk_sec": 120, "cooldown_walk_min": 5, "intensity": "conversational"},
+    {"day": "Thursday", "type": "recovery", "walk_min_range": [20,30], "mobility": true, "rest_allowed": true},
+    {"day": "Friday", "type": "strength_B", "duration_min_range": [30,40], "exercises": ["step-ups", "split squats", "pain-free upper-body push", "pain-free upper-body pull", "core"], "starting_work_sets_per_exercise_typical": 2, "rpe_target_range": [6,7]},
+    {"day": "Saturday", "type": "long_run_walk", "duration_min_range": [35,40], "jog_sec": 60, "walk_sec_range": [120,180], "intensity": "conversational"},
+    {"day": "Sunday", "type": "optional_hunt_conditioning", "walk_min_range": [30,45], "terrain": "varied", "pack": "light only if symptom-free", "rest_allowed": true}
+  ],
+  "training_week_2": {"base": "repeat_week_1", "optional_progression_if_recovered": "selected jog intervals up to 90 seconds with 120 seconds walking; user approval required"},
+  "supplements_user_reported": [
+    {"name": "creatine monohydrate", "status": "planned", "amount_g_per_day_range": [3,5]},
+    {"name": "vitamin D3", "status": "interested", "dose": null},
+    {"name": "vitamin K2", "status": "interested", "dose": null},
+    {"name": "magnesium", "status": "interested", "dose": null},
+    {"name": "LMNT electrolyte hydration", "status": "user_reported_current", "servings": null},
+    {"name": "Mountain Ops hydration", "status": "user_reported_current", "servings": null},
+    {"name": "psyllium fiber", "status": "owned", "dose": null}
+  ],
+  "medications_and_investigational_substances": [
+    {"name": "testosterone replacement therapy", "status": "user_reported_current", "concentration_mg_per_ml": 200, "weekly_volume_ml_range": [0.8,0.9], "calculated_weekly_dose_mg_range": [160,180], "user_reported_days": ["Monday","Wednesday","Friday"], "schedule_requires_confirmation": true, "note": "tracking only, not dosing advice"},
+    {"name": "retatrutide", "status": "considering", "approved": false, "dose": null, "schedule": null},
+    {"name": "tesamorelin", "status": "considering_but_on_hold", "dose": null, "schedule": null},
+    {"name": "ipamorelin", "status": "considering_but_on_hold", "dose": null, "schedule": null},
+    {"name": "BPC-157", "status": "considering_not_active", "dose": null, "schedule": null},
+    {"name": "TB-500", "status": "considering_not_active", "dose": null, "schedule": null},
+    {"name": "CJC-1295", "status": "excluded_by_user", "dose": null, "schedule": null}
+  ],
+  "privacy": {"health_data_sensitive": true, "public_sharing_default": false, "export_and_delete_required": true}
+}

@@ -4,6 +4,11 @@ A faith-rooted, hunting-specific fitness PWA built for short home workouts with 
 
 ## Current feature set
 
+- 15K run/walk plan with Strength A/B, run interval timer, user-approved progression, race date and taper (Settings → Plan)
+- Four-slot fuel plan, saved meals, hydration with label-based electrolytes, 3-day meal prep, grocery list
+- Supplements and medications logged as user-reported only; investigational compounds carry no dose or schedule
+- Weekly-average weight trend, adherence, and process milestones on Progress
+
 - 8-week, 30-min-or-less training program with dumbbell and bodyweight (+ bands) equipment modes
 - Per-set weight and rep logging
 - Carry, plank, ruck, circuit, and timed-work logging
@@ -60,6 +65,7 @@ Replace these files when publishing a new version:
 - `styles.css`
 - `sw.js`
 - `manifest.webmanifest`
+- `fit.js`, `camp.js`, `cycles.js`
 
 The `icons` folder only needs replacing when the app icon changes.
 

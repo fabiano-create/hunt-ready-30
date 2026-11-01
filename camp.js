@@ -23,12 +23,13 @@ function campState(){
     lantern:h.length>=5 };
 }
 function campStageWord(c){ const done=[c.platform,c.extras,c.cache,c.range>=3,c.stones>=12].filter(Boolean).length; if(c.sessions===0) return 'CLEARING'; if(done>=4) return 'READY'; if(c.roof||c.platform) return 'STANDING'; return 'RAISING'; }
+function campDayName(d,def){ const t=(typeof fitSessionTitle==='function')?fitSessionTitle(d):null; return t||def; }
 function campBuildsFor(day,c){
   switch(day){
-    case 'Monday': return c.legs<5?['trail',`Lower Body Strength cuts trail section ${c.legs+1} of 5.`]:c.legs<11?['rung',`Lower Body Strength adds ladder rung ${c.legs-4} of 6.`]:c.legs<12?['stand',`Lower Body Strength hangs the stand platform.`]:['stand','Lower Body Strength keeps the trail open.'];
-    case 'Tuesday': case 'Thursday': return c.upper<8?['log',`${day==='Tuesday'?'Archery Upper Body':'Full-Body Strength'} lays cabin log ${c.upper+1} of 8.`]:c.upper<9?['roof',`${day==='Tuesday'?'Archery Upper Body':'Full-Body Strength'} puts the roof on the cabin.`]:c.upper<12?['roof',`${day==='Tuesday'?'Archery Upper Body':'Full-Body Strength'} finishes the roof, ${12-c.upper} to go before the antlers go up.`]:['banner','Rows and presses keep the cabin tight.'];
-    case 'Wednesday': case 'Saturday': case 'Ruck Track': { const lbl={Wednesday:'Ruck Day',Saturday:'Easy Outdoor Day','Ruck Track':'The ruck track'}[day]; return c.rucks<8?['wood',`${lbl} stacks the woodpile, ${c.rucks+1} of 8 loads.`]:c.rucks<12?['wood',`${lbl} packs the cache, ${c.rucks+1} of 12.`]:['wood','Rucks keep the cache stocked.']; }
-    case 'Friday': return ['fire','Hunter Conditioning feeds the fire for the week.'];
+    case 'Monday': return c.legs<5?['trail',`${campDayName('Monday','Lower Body Strength')} cuts trail section ${c.legs+1} of 5.`]:c.legs<11?['rung',`${campDayName('Monday','Lower Body Strength')} adds ladder rung ${c.legs-4} of 6.`]:c.legs<12?['stand',`${campDayName('Monday','Lower Body Strength')} hangs the stand platform.`]:['stand',`${campDayName('Monday','Lower Body Strength')} keeps the trail open.`];
+    case 'Tuesday': case 'Thursday': return c.upper<8?['log',`${campDayName(day,day==='Tuesday'?'Archery Upper Body':'Full-Body Strength')} lays cabin log ${c.upper+1} of 8.`]:c.upper<9?['roof',`${campDayName(day,day==='Tuesday'?'Archery Upper Body':'Full-Body Strength')} puts the roof on the cabin.`]:c.upper<12?['roof',`${campDayName(day,day==='Tuesday'?'Archery Upper Body':'Full-Body Strength')} finishes the roof, ${12-c.upper} to go before the antlers go up.`]:['banner','Rows and presses keep the cabin tight.'];
+    case 'Wednesday': case 'Saturday': case 'Ruck Track': { const lbl=day==='Ruck Track'?'The ruck track':campDayName(day,{Wednesday:'Ruck Day',Saturday:'Easy Outdoor Day'}[day]); return c.rucks<8?['wood',`${lbl} stacks the woodpile, ${c.rucks+1} of 8 loads.`]:c.rucks<12?['wood',`${lbl} packs the cache, ${c.rucks+1} of 12.`]:['wood','Rucks keep the cache stocked.']; }
+    case 'Friday': return ['fire',`${campDayName('Friday','Hunter Conditioning')} feeds the fire for the week.`];
     default: return ['stone', c.thisWeek>=3?'Rest kept. The week is already in the stones.':'Rest day. Three sessions this week add a memorial stone.'];
   }
 }

@@ -1,5 +1,5 @@
-const CACHE='hunt-ready-30-v5-12-2';
-const CORE=['./','index.html','styles.css','app.js','camp.js','cycles.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
+const CACHE='hunt-ready-30-v5-13-0';
+const CORE=['./','index.html','styles.css','app.js','camp.js','cycles.js','fit.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));
 });

@@ -1,3 +1,35 @@
+# HUNT READY 30 — Full Build 5.13.0
+
+## 15K run/walk plan (Settings → Plan)
+- A second training plan beside the hunter program: three easy run/walk days from a quarter-mile base, Strength A (goblet squat, DB RDL, supported row, plank) and Strength B (step-up, split squat, pain-free floor press and row, plank) at two working sets each around RPE 6–7, a recovery day, and optional Sunday hunt conditioning with "Rest instead". Each weekday's session type is editable.
+- Run/walk interval timer inside the normal workout screen: calls every warm-up, jog, walk, and cool-down with the time left, ticks at 3-2-1 and double-beeps at each change, pause and resume, plus manual distance, longest nonstop jog, effort, rounds, and a pain flag on the log.
+- Ten-step ladder from jog 1 min / walk 2 min up to jog 20 min / walk 2 min. A step up opens only after three sessions at the current step, seven pain-free days, decent readiness, and no more than one hard session, and only when you tap Approve. Step back any time. Taper (last ten days before the race) shortens the long day.
+- Race date and goal mode (run/walk finish or continuous-run aim) in Settings. The 15K card on Today and Train shows the runway and what one step a week reaches by race day, without promising a continuous 15K. A January date gets a plain warning.
+
+## Readiness
+- Hours slept (optional) and a pain / numbness / radiating-symptoms checkbox. Pain trims the day, turns a run into an easy walk, and shows a "get it looked at, this app does not diagnose" note. It also blocks run progression for seven days.
+
+## Fuel
+- Four meal slots (11:00 shake, 1:30 lunch, 4:00 shake, 7:00 dinner; times editable). Tap a slot on Today or Fuel to log a saved meal in two taps with a portion multiplier. Shake protein comes from your powder's label, never a guessed scoop.
+- Protein progress toward the daily target on Today. Targets default to 2,400 kcal / 190 g protein / 180 g carbs / 102 g fat only when they were blank.
+- Hydration servings with +1 buttons per product (Water, LMNT, Mountain Ops). Sodium, potassium, and magnesium are summed only from label values you enter, so nothing is double-counted.
+- Saved meals library, 3-day meal-prep calculator (main meals × sweet potato g × green beans g), grocery list built from your preferred foods, store list.
+- Supplements and medications, user-reported only: status, dose (blank allowed), unit, schedule, notes, daily checklist. TRT shows the mg/mL arithmetic on what you reported and appears on the checklist only after you tick "I confirm this is my current prescriber-directed regimen". Investigational items (retatrutide, tesamorelin, ipamorelin, BPC-157, TB-500) store a name, a status, and a note only; no dose, no schedule, no stack. CJC-1295 is kept as excluded.
+
+## Today
+- Mission line, Fuel card, Weight card (weekly average trend against the 1–1.5 lb/week guideline, a "review fueling and recovery" flag after two fast weeks, one-tap weigh-in), Supplements-today checklist, 15K card.
+
+## Progress
+- 15K and running: runs, minutes, longest nonstop jog, miles by hand. Weight as a weekly-average line. Protein days out of seven, longest hike, bow sessions in four weeks. Nine process milestones (first run/walk, first 30-minute session, three sessions in a week, five and ten minutes nonstop, 45- and 60-minute hikes, seven protein days, four pain-free bow sessions), dated when earned, never promised.
+
+## Data
+- New `hr30_fit` key holds the plan, profile, slots, saved meals, hydration log, supplements, run step, and milestones. It is inside the normal export/import. Settings → Import seed JSON merges `seed/USER_SEED_DATA.json` into blanks only; importing twice changes nothing.
+- Logged sessions record which plan session they were, so the editor rebuilds the right inputs. Run/walk sessions edit minutes, miles, rounds, and nonstop minutes.
+- Optional meal-time reminders while the app is open (asks for notification permission once). No server, no push.
+
+## Preserved
+- Hunter program, blocks, cycles, Ruck Track, camp, archery, weapon profile, hunt prep, AI scans: untouched. Camp build text names the plan's session when the 15K plan is on.
+
 # HUNT READY 30 — Full Build 5.12.2
 
 - Shorter Done card on Today: the session name with its numbers on one line, the piece you built, the commendation verse, and a single link to the Training tab. Details, edit, train again, and the progression note now live on the Training tab's Done card.
